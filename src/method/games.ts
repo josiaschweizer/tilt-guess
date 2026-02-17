@@ -17,7 +17,6 @@ export default async function loadGameById(
         { id: 'p2', name: 'marko' },
         { id: 'p3', name: 'simi' },
         { id: 'p4', name: 'noe' },
-        { id: 'p5', name: 'younes affe' },
         { id: 'p6', name: 'samuel' },
         { id: 'p7', name: 'alea' },
         { id: 'p8', name: 'laurin' },
@@ -70,17 +69,17 @@ export default async function loadGameById(
         startedAtIso: new Date(now - min(15)).toISOString(),
         endedAtIso: new Date(now - min(14)).toISOString(),
         correct: 5,
-        skipped: 0,
+        skipped: 7,
       },
       {
         id: 't5',
         gameId: 'demo-1',
         roundId: 'r2',
-        playerId: 'p5',
+        playerId: 'p4',
         startedAtIso: new Date(now - min(14)).toISOString(),
         endedAtIso: new Date(now - min(13)).toISOString(),
         correct: 1,
-        skipped: 1,
+        skipped: 3,
       },
       {
         id: 't6',
@@ -121,7 +120,7 @@ export default async function loadGameById(
         startedAtIso: new Date(now - min(10)).toISOString(),
         endedAtIso: new Date(now - min(9)).toISOString(),
         correct: 6,
-        skipped: 1,
+        skipped: 19,
       },
     ]
 

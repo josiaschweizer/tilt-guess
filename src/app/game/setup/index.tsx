@@ -1,6 +1,6 @@
 import { Stack, router } from 'expo-router'
-import { useState } from 'react'
-import { Pressable, ScrollView, Text, View } from 'react-native'
+import { useRef, useState } from 'react'
+import { Pressable, ScrollView, Text, TextInput, View } from 'react-native'
 import { Play, UserPlus } from 'lucide-react-native'
 import Button from '@/components/base/Button'
 import InputField from '@/components/base/InputField'
@@ -10,6 +10,7 @@ import { Player } from '@/interface/entities/Player'
 export default function GameSetup() {
   const [players, setPlayers] = useState<Player[]>([])
   const [nameInput, setNameInput] = useState('')
+  const inputRef = useRef<TextInput>(null)
 
   const trimmedName = nameInput.trim()
   const canAdd = trimmedName.length > 0
@@ -56,6 +57,7 @@ export default function GameSetup() {
         <View className="mb-4 flex-row items-center">
           <View className="flex-1 mb-4">
             <InputField
+              ref={inputRef}
               value={nameInput}
               placeholder="Name eingeben..."
               onChangeText={setNameInput}
@@ -76,14 +78,22 @@ export default function GameSetup() {
           </Pressable>
         </View>
         {players.length === 0 ? (
-          <View className="mb-10 items-center rounded-xl border border-black/10 bg-surface px-4 py-6">
+          <Pressable
+            onPress={() => inputRef.current?.focus()}
+            className="mb-10 items-center rounded-xl border border-black/10 bg-surface px-4 py-6"
+            android_ripple={{ color: 'rgba(0,0,0,0.08)' }}
+            accessibilityRole="button"
+            accessibilityLabel="Keine Spieler hinzugefügt"
+            accessibilityHint="Tippe hier, um das Eingabefeld zu fokussieren"
+          >
             <View className="mb-3 h-14 w-14 items-center justify-center rounded-full bg-accent">
               <UserPlus size={28} color="#000000" />
             </View>
+
             <Text className="text-center text-base font-semibold text-text">
-              Keine Spieler hinzugefuegt
+              Keine Spieler hinzugefügt
             </Text>
-          </View>
+          </Pressable>
         ) : (
           <View className="mb-10">
             {players.map((player) => (

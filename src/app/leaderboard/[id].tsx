@@ -7,8 +7,8 @@ import Button from '@/components/base/Button'
 import { computeLeaderboard } from '@/lib/game/leaderboard'
 import type { Game } from '@/interface/entities/Game'
 import type { Turn } from '@/interface/entities/Turn'
-import loadGameById from '@/method/game'
-import saveGameToHistory from '@/method/history'
+import loadGameById from '@/method/games'
+import saveGameToHistory from '@/method/histories'
 
 export default function ResultScreen() {
   const params = useLocalSearchParams()
@@ -23,13 +23,13 @@ export default function ResultScreen() {
   useEffect(() => {
     const load = async () => {
       if (!gameId) {
-        router.replace('/game/setup')
+        router.push('/game/setup')
         return
       }
 
       const data = await loadGameById(gameId)
       if (!data) {
-        router.replace('/game/setup')
+        router.push('/game/setup')
         return
       }
 
@@ -82,11 +82,11 @@ export default function ResultScreen() {
 
   const startNewGame = () => {
     // todo: clear current game from storage (the one with gameId)
-    router.replace('/game/setup')
+    router.push('/game/setup')
   }
 
   const goHome = () => {
-    router.replace('/')
+    router.push('/')
   }
 
   const getRankBadge = (rank: number) => {

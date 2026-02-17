@@ -7,7 +7,7 @@ import TiltGuessIcon from '../../assets/tiltguess.png'
 export default function Home() {
   return (
     <View className="flex-1 bg-bg items-center justify-center px-6">
-      <Stack.Screen options={{ title: 'Home' }} />
+      <Stack.Screen options={{ title: 'Home', headerBackVisible: false }} />
 
       <View className="w-full max-w-md">
         <View className="items-center mb-12">
