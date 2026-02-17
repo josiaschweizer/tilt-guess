@@ -1,7 +1,7 @@
 import { router, Stack } from 'expo-router'
 import { Image, Text, View } from 'react-native'
 import { History, Play } from 'lucide-react-native'
-import Button from '@/components/Button'
+import Button from '@/components/base/Button'
 import TiltGuessIcon from '../../assets/tiltguess.png'
 
 export default function Home() {

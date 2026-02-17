@@ -2,9 +2,9 @@ import { Stack, router } from 'expo-router'
 import { useState } from 'react'
 import { Pressable, ScrollView, Text, View } from 'react-native'
 import { Play, UserPlus } from 'lucide-react-native'
-import Button from '@/components/Button'
-import InputField from '@/components/InputField'
-import PlayerListItem from '@/components/PlayerListItem'
+import Button from '@/components/base/Button'
+import InputField from '@/components/base/InputField'
+import PlayerListItem from '@/components/ui/PlayerListItem'
 
 interface Player {
   id: string
