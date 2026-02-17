@@ -1,10 +1,10 @@
 import { router, Stack } from 'expo-router'
 import { useEffect, useState } from 'react'
-import { FlatList, Text, View } from 'react-native'
+import { Alert, FlatList, Pressable, Text, View } from 'react-native'
 import type { GameHistoryItem } from '@/interface/GameHistoryItem'
 import HistoryRow from '@/components/ui/history/HistoryRow'
 import Button from '@/components/base/Button'
-import { Trophy } from 'lucide-react-native'
+import { Trash2, Trophy } from 'lucide-react-native'
 
 export default function History() {
   const [history, setHistory] = useState<GameHistoryItem[]>([])
@@ -40,9 +40,41 @@ export default function History() {
     setHistory((prev) => prev.filter((g) => g.id !== gameId))
   }
 
+  const deleteAllGames = () => {
+    Alert.alert(
+      'Spielverlauf löschen?',
+      'Willst du wirklich alle Spiele entfernen?',
+      [
+        { text: 'Abbrechen', style: 'cancel' },
+        {
+          text: 'Löschen',
+          style: 'destructive',
+          onPress: () => {
+            // todo: delete all games from storage
+            setHistory([])
+          },
+        },
+      ],
+    )
+  }
+
   return (
     <View className="flex-1 bg-bg px-6 py-6">
-      <Stack.Screen options={{ title: 'Spielverlauf' }} />
+      <Stack.Screen
+        options={{
+          title: 'Spielverlauf',
+          headerRight: () =>
+            history.length === 0 ? null : (
+              <Pressable
+                onPress={deleteAllGames}
+                className="h-11 w-11 items-center justify-center"
+                hitSlop={10}
+              >
+                <Trash2 size={24} color="#000000" />
+              </Pressable>
+            ),
+        }}
+      />
 
       <View className="w-full max-w-md self-center flex-1">
         <FlatList
