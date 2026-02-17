@@ -1,7 +1,8 @@
 import { router, Stack } from 'expo-router'
-import { Text, View } from 'react-native'
-import { History, Play, Users } from 'lucide-react-native'
+import { Image, Text, View } from 'react-native'
+import { History, Play } from 'lucide-react-native'
 import Button from '@/components/Button'
+import TiltGuessIcon from '../../assets/tiltguess.png'
 
 export default function Home() {
   return (
@@ -10,8 +11,8 @@ export default function Home() {
 
       <View className="w-full max-w-md">
         <View className="items-center mb-12">
-          <View className="h-24 w-24 rounded-full bg-primary items-center justify-center mb-4">
-            <Users size={48} color="#EEE0CB" />
+          <View className="h-30 w-30 rounded-full bg-primary items-center justify-center mb-4">
+            <Image source={TiltGuessIcon} className="h-24 w-24" />
           </View>
 
           <Text className="text-4xl font-black text-text mb-2">TiltGuess</Text>
