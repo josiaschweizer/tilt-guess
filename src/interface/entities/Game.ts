@@ -1,4 +1,4 @@
-import { Player } from '@/interface/Player'
+import { Player } from '@/interface/entities/Player'
 import { GameStatus } from '@/types/GameStatus'
 
 export interface Game {
@@ -10,6 +10,6 @@ export interface Game {
   rounds: number
   players: Player[]
 
-  currentRoundIndex: number // 0-based
-  currentPlayerIndex: number // 0-based (wer ist gerade dran)
+  currentRoundIndex: number
+  currentPlayerIndex: number
 }

@@ -1,5 +1,5 @@
-import type { Player } from '@/interface/Player'
-import type { Turn } from '@/interface/Turn'
+import type { Player } from '@/interface/entities/Player'
+import type { Turn } from '@/interface/entities/Turn'
 
 export interface LeaderboardRow {
   player: Player

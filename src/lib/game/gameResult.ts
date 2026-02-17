@@ -1,7 +1,7 @@
 // src/lib/game/gameResult.ts
-import type { Game } from '@/interface/Game'
-import type { Player } from '@/interface/Player'
-import type { Turn } from '@/interface/Turn'
+import type { Game } from '@/interface/entities/Game'
+import type { Player } from '@/interface/entities/Player'
+import type { Turn } from '@/interface/entities/Turn'
 import { computeLeaderboard, type LeaderboardRow } from './leaderboard'
 
 export interface GameResult {

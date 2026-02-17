@@ -5,11 +5,7 @@ import { Play, UserPlus } from 'lucide-react-native'
 import Button from '@/components/base/Button'
 import InputField from '@/components/base/InputField'
 import PlayerListItem from '@/components/ui/PlayerListItem'
-
-interface Player {
-  id: string
-  name: string
-}
+import { Player } from '@/interface/entities/Player'
 
 export default function GameSetup() {
   const [players, setPlayers] = useState<Player[]>([])

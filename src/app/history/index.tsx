@@ -1,51 +1,32 @@
 import { router, Stack } from 'expo-router'
 import { useEffect, useState } from 'react'
 import { FlatList, Text, View } from 'react-native'
-import { GameResult } from '@/interface/GameResult'
+import type { GameHistoryItem } from '@/interface/GameHistoryItem'
 import HistoryRow from '@/components/ui/history/HistoryRow'
 import Button from '@/components/base/Button'
 import { Trophy } from 'lucide-react-native'
 
 export default function History() {
-  const [history, setHistory] = useState<GameResult[]>([])
+  const [history, setHistory] = useState<GameHistoryItem[]>([])
 
   useEffect(() => {
     // todo: load history from storage and setHistory(...)
-    // setHistory([
-    //   {
-    //     id: 'demo-1',
-    //     createdAtIso: new Date().toISOString(),
-    //     rounds: 3,
-    //     players: [
-    //       { id: 'p1', name: 'josia' },
-    //       { id: 'p2', name: 'marko' },
-    //     ],
-    //     leaderboard: [],
-    //     winner: {
-    //       rank: 1,
-    //       player: { id: 'p1', name: 'josia' },
-    //       correct: 12,
-    //       skipped: 2,
-    //     },
-    //   },
-    //   {
-    //     id: 'demo-2',
-    //     createdAtIso: new Date(Date.now() - 1000 * 60 * 70).toISOString(),
-    //     rounds: 2,
-    //     players: [
-    //       { id: 'p1', name: 'josia' },
-    //       { id: 'p2', name: 'marko' },
-    //       { id: 'p3', name: 'laurin' },
-    //     ],
-    //     leaderboard: [],
-    //     winner: {
-    //       rank: 1,
-    //       player: { id: 'p2', name: 'marko' },
-    //       correct: 9,
-    //       skipped: 1,
-    //     },
-    //   },
-    // ])
+    setHistory([
+      {
+        id: 'demo-1',
+        createdAtIso: new Date().toISOString(),
+        rounds: 3,
+        playerNames: ['josia', 'marko'],
+        winner: { playerName: 'josia', correct: 12, skipped: 2 },
+      },
+      {
+        id: 'demo-2',
+        createdAtIso: new Date(Date.now() - 1000 * 60 * 70).toISOString(),
+        rounds: 2,
+        playerNames: ['josia', 'marko', 'laurin'],
+        winner: { playerName: 'marko', correct: 9, skipped: 1 },
+      },
+    ])
   }, [])
 
   const openDetail = (gameId: string) => {
@@ -61,7 +42,7 @@ export default function History() {
 
   return (
     <View className="flex-1 bg-bg px-6 py-6">
-      <Stack.Screen options={{ title: 'History' }} />
+      <Stack.Screen options={{ title: 'Spielverlauf' }} />
 
       <View className="w-full max-w-md self-center flex-1">
         <FlatList
