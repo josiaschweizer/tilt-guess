@@ -24,7 +24,7 @@ export default function Home() {
         <View className="gap-4">
           <Button
             text="Neues Spiel starten"
-            onPress={() => router.push('/setup')}
+            onPress={() => router.push('/game/setup')}
             icon={<Play size={20} color="#EEE0CB" />}
           />
 
