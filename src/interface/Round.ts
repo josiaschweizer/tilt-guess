@@ -1,4 +1,4 @@
 export interface Round {
-  id: number
-  playIds: number[]
+  id: string
+  turnIds: string[]
 }

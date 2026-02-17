@@ -1,5 +1,6 @@
 export interface Game {
-  id: number
-  roundIds: number[]
-  playerIds: number[]
+  id: string
+  createdAtIso: string
+  roundIds: string[]
+  playerIds: string[]
 }
