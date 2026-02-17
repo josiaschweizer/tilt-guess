@@ -1,4 +1,4 @@
-import { Animated, StyleSheet, TouchableOpacity, Text, StyleProp, ViewStyle } from 'react-native'
+import { TouchableOpacity, Text, StyleProp, ViewStyle } from 'react-native'
 
 interface ButtonProps {
   text: string
@@ -8,44 +8,20 @@ interface ButtonProps {
 }
 
 export default function Button({
-                                 text,
-                                 onPress,
-                                 style,
-                                 disabled = false,
-                               }: ButtonProps) {
+  text,
+  onPress,
+  style,
+  disabled = false,
+}: ButtonProps) {
   return (
     <TouchableOpacity
-      style={[styles.button, style, disabled && styles.disabled]}
+      className={` h-12 px-4 rounded-full mb-2.5 items-center justify-center bg-primary${disabled ? 'opacity-40' : ''}`}
       activeOpacity={0.8}
       onPress={onPress}
       disabled={disabled}
+      style={style}
     >
-      <Animated.View style={styles.content}>
-        <Text style={styles.text}>{text}</Text>
-      </Animated.View>
+      <Text className="text-on-primary font-bold">{text}</Text>
     </TouchableOpacity>
   )
 }
-
-const styles = StyleSheet.create({
-  button: {
-    height: 48,
-    paddingHorizontal: 16,
-    elevation: 4,
-    backgroundColor: '#222222',
-    borderRadius: 50,
-    marginBottom: 10,
-  },
-  content: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  text: {
-    color: '#fff',
-    fontWeight: 'bold',
-  },
-  disabled: {
-    opacity: 0.4,
-  },
-})
