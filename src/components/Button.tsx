@@ -2,7 +2,7 @@ import { TouchableOpacity, Text, StyleProp, ViewStyle } from 'react-native'
 
 interface ButtonProps {
   text: string
-  onPress: () => void
+  onPress?: () => void
   style?: StyleProp<ViewStyle>
   disabled?: boolean
 }
