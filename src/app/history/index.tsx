@@ -30,9 +30,7 @@ export default function History() {
   }, [])
 
   const openDetail = (gameId: string) => {
-    // todo: implement history detail screen + route
-    // router.push({ pathname: '/history/[id]', params: { id: gameId } })
-    console.log('todo: open history detail for', gameId)
+    router.push({ pathname: '/leaderboard/[id]', params: { id: gameId } })
   }
 
   const deleteGame = (gameId: string) => {

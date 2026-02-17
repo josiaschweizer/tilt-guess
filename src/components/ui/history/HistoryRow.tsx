@@ -1,6 +1,6 @@
 import { Pressable, Text, View } from 'react-native'
 import { Calendar, ChevronRight, Trash2 } from 'lucide-react-native'
-import { GameResult } from '@/interface/GameResult'
+import { GameResult } from '@/lib/game/gameResult'
 
 function formatDate(iso: string) {
   const d = new Date(iso)

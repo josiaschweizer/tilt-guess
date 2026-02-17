@@ -4,10 +4,10 @@
 
 :root {
   --color-text: #000000;
-  --color-bg: #EEE0CB;
-  --color-surface: #BAA898;
+  --color-bg: #eee0cb;
+  --color-surface: #baa898;
   --color-primary: #839788;
-  --color-accent: #BFD7EA;
-  --color-on-primary: #EEE0CB;
+  --color-accent: #bfd7ea;
+  --color-on-primary: #eee0cb;
   --color-on-accent: #000000;
 }
