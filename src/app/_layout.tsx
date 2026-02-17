@@ -1,5 +1,4 @@
 import { Stack } from 'expo-router'
-import { View } from 'react-native'
 import '@/styles/global.css'
 
 export default function RootLayout() {
@@ -10,7 +9,7 @@ export default function RootLayout() {
           backgroundColor: '#EEE0CB',
         },
         headerStyle: {
-          backgroundColor: '#839788',
+          backgroundColor: '#EEE0CB',
         },
       }}
     />
