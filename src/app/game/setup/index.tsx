@@ -54,8 +54,8 @@ export default function GameSetup() {
             Spieler ({players.length})
           </Text>
         </View>
-        <View className="mb-4 flex-row items-center">
-          <View className="flex-1 mb-4">
+        <View className="mb-4 flex-row items-center gap-3">
+          <View className="flex-1">
             <InputField
               ref={inputRef}
               value={nameInput}
@@ -66,7 +66,7 @@ export default function GameSetup() {
           <Pressable
             onPress={handleAdd}
             disabled={!canAdd}
-            className={`ml-3 h-12 w-12 items-center justify-center rounded-xl bg-primary ${
+            className={`h-12 w-12 items-center justify-center rounded-xl bg-primary ${
               !canAdd ? 'opacity-40' : ''
             }`}
             android_ripple={{ color: 'rgba(0,0,0,0.12)', radius: 22 }}
@@ -108,7 +108,7 @@ export default function GameSetup() {
         )}
         <Button
           text="Spiel starten"
-          onPress={() => router.push('/game')}
+          onPress={() => router.push('/game/instructions')}
           disabled={players.length === 0}
           icon={<Play size={18} color="#EEE0CB" />}
         />

@@ -1,6 +1,6 @@
 import { Pressable, Text, View } from 'react-native'
 import { Calendar, ChevronRight, Trash2 } from 'lucide-react-native'
-import { GameResult } from '@/lib/game/gameResult'
+import type { GameHistoryItem } from '@/interface/GameHistoryItem'
 
 function formatDate(iso: string) {
   const d = new Date(iso)
@@ -18,7 +18,7 @@ function formatTime(iso: string) {
 }
 
 interface Props {
-  game: GameResult
+  game: GameHistoryItem
   title: string
   onPress: () => void
   onDelete: () => void
