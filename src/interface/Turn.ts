@@ -1,7 +1,12 @@
 export interface Turn {
   id: string
-  playerId: string
+  gameId: string
   roundId: string
+  playerId: string
+
+  startedAtIso: string
+  endedAtIso?: string
+
   correct: number
   skipped: number
 }
