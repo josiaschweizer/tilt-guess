@@ -230,12 +230,11 @@ export default function GamePlay() {
     onTiltDetected: handleTiltDetected,
     enabled: !isLoading && !timerEnded,
     config: {
-      axis: 'x',
+      axis: 'z',
       threshold: 0.35,
-      neutralThreshold: 0.12,
+      resetThreshold: 0.15,
       cooldownMs: 800,
       invert: false,
-      log: true,
     },
   })
 
