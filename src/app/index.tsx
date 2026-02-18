@@ -35,13 +35,6 @@ export default function Home() {
             onPress={() => router.push('/history')}
             icon={<History size={20} color="#000000" />}
           />
-
-          <AppButton
-            text="Game"
-            variant="secondary"
-            onPress={() => router.push('/game/play/123')}
-            icon={<History size={20} color="#000000" />}
-          />
         </View>
       </View>
     </View>
