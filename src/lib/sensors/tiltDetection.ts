@@ -1,100 +1,103 @@
-import { TiltConfig } from '@/interface/tilt/TiltConfig'
-import { TiltDirection } from '@/types/tilt/TiltDirection'
+export type TiltDirection = 'forward' | 'backward' | null
 
-export const DEFAULT_TILT_CONFIG: TiltConfig = {
-  gyroThreshold: 5.5,
-  debounceMs: 900,
-  confirmationMs: 40,
+export interface TiltConfig {
+  axis: 'x' | 'y' | 'z'
+  threshold: number
+  cooldownMs: number
+  log?: boolean
 }
 
-let lastTiltTime = 0
-let candidateDirection: TiltDirection = null
-let candidateStartTime = 0
+export const DEFAULT_TILT_CONFIG: TiltConfig = {
+  axis: 'x',
+  threshold: 0.3,
+  cooldownMs: 900,
+  log: false,
+}
 
-let isNeutral = true
-let neutralStartTime = 0
-
-const NEUTRAL_DEADZONE = 1.2
-const NEUTRAL_REQUIRED_MS = 200
-
-export interface SensorData {
+type AccelInput = {
   accelX?: number
   accelY?: number
   accelZ?: number
-  gyroX?: number
-  gyroY?: number
-  gyroZ?: number
 }
 
-export function detectTilt(
-  _accelData: SensorData,
-  gyroData: SensorData,
-  config: TiltConfig = DEFAULT_TILT_CONFIG,
-): TiltDirection {
-  const now = Date.now()
-  const gyroY = gyroData.gyroY ?? 0
+type TiltState = {
+  lastDirection: Exclude<TiltDirection, null> | null
+  lastEmitAt: number
+}
 
-  if (Math.abs(gyroY) < NEUTRAL_DEADZONE) {
-    if (!isNeutral) {
-      isNeutral = true
-      neutralStartTime = now
-    }
-  } else {
-    isNeutral = false
-    neutralStartTime = 0
-  }
+const state: TiltState = {
+  lastDirection: null,
+  lastEmitAt: 0,
+}
 
-  const hasPreviousTilt = lastTiltTime > 0
-  const timeSinceLastTilt = now - lastTiltTime
-  const neutralLongEnough =
-    isNeutral &&
-    neutralStartTime > 0 &&
-    now - neutralStartTime >= NEUTRAL_REQUIRED_MS
+function pickAxisValue(accel: AccelInput, axis: TiltConfig['axis']): number {
+  if (axis === 'x') return accel.accelX ?? 0
+  if (axis === 'y') return accel.accelY ?? 0
+  return accel.accelZ ?? 0
+}
 
-  if (
-    hasPreviousTilt &&
-    (timeSinceLastTilt < config.debounceMs || !neutralLongEnough)
-  ) {
-    candidateDirection = null
-    candidateStartTime = 0
-    return null
-  }
-
-  let currentDirection: TiltDirection = null
-  if (gyroY > config.gyroThreshold) {
-    currentDirection = 'backward'
-  } else if (gyroY < -config.gyroThreshold) {
-    currentDirection = 'forward'
-  }
-
-  if (currentDirection === null) {
-    candidateDirection = null
-    candidateStartTime = 0
-    return null
-  }
-
-  if (currentDirection !== candidateDirection) {
-    candidateDirection = currentDirection
-    candidateStartTime = now
-    return null
-  }
-
-  const heldFor = now - candidateStartTime
-  if (heldFor < config.confirmationMs) {
-    return null
-  }
-
-  const confirmedDirection = candidateDirection
-  lastTiltTime = now
-  candidateDirection = null
-  candidateStartTime = 0
-  return confirmedDirection
+function logTilt(
+  label: string,
+  payload: Record<string, unknown>,
+  enabled: boolean,
+) {
+  if (!enabled) return
+  // eslint-disable-next-line no-console
+  console.log(`[TILT] ${label}`, JSON.stringify(payload))
 }
 
 export function resetTiltState(): void {
-  lastTiltTime = 0
-  candidateDirection = null
-  candidateStartTime = 0
-  isNeutral = true
-  neutralStartTime = 0
+  state.lastDirection = null
+  state.lastEmitAt = 0
+}
+
+export function detectTilt(
+  _prev: unknown,
+  accel: AccelInput,
+  config: TiltConfig = DEFAULT_TILT_CONFIG,
+): TiltDirection {
+  const now = Date.now()
+  const axisValue = pickAxisValue(accel, config.axis)
+
+  logTilt('raw', { t: now, axis: config.axis, axisValue }, Boolean(config.log))
+
+  const inCooldown = now - state.lastEmitAt < config.cooldownMs
+  if (inCooldown) {
+    logTilt(
+      'cooldown',
+      { t: now, msRemaining: config.cooldownMs - (now - state.lastEmitAt) },
+      Boolean(config.log),
+    )
+    return null
+  }
+
+  let direction: TiltDirection = null
+  if (axisValue >= config.threshold) direction = 'forward'
+  if (axisValue <= -config.threshold) direction = 'backward'
+
+  logTilt(
+    'direction-eval',
+    {
+      t: now,
+      axis: config.axis,
+      axisValue,
+      threshold: config.threshold,
+      direction,
+      lastDirection: state.lastDirection,
+    },
+    Boolean(config.log),
+  )
+
+  if (!direction) {
+    state.lastDirection = null
+    return null
+  }
+
+  if (state.lastDirection === direction) {
+    return null
+  }
+
+  state.lastDirection = direction
+  state.lastEmitAt = now
+  return direction
 }

@@ -1,5 +1,5 @@
 import { useEffect, useCallback, useRef } from 'react'
-import { Gyroscope } from 'expo-sensors'
+import { Accelerometer } from 'expo-sensors'
 import {
   detectTilt,
   resetTiltState,
@@ -32,22 +32,23 @@ export function useTiltGesture(props: UseTiltGestureProps) {
     if (!enabled) {
       subscriptionsRef.current.forEach((sub) => sub.remove?.())
       subscriptionsRef.current = []
+      resetTiltState()
       return
     }
 
     try {
-      Gyroscope.setUpdateInterval(50)
+      Accelerometer.setUpdateInterval(50)
 
-      const gyroSubscription = Gyroscope.addListener((data) => {
+      const accelSubscription = Accelerometer.addListener((data) => {
         const tilt = detectTilt(
           {},
-          { gyroX: data.x, gyroY: data.y, gyroZ: data.z },
+          { accelX: data.x, accelY: data.y, accelZ: data.z },
           config,
         )
         handleTilt(tilt)
       })
 
-      subscriptionsRef.current = [gyroSubscription]
+      subscriptionsRef.current = [accelSubscription]
 
       return () => {
         subscriptionsRef.current.forEach((sub) => sub.remove?.())
@@ -55,6 +56,7 @@ export function useTiltGesture(props: UseTiltGestureProps) {
         resetTiltState()
       }
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error('Error setting up tilt gesture recognition:', error)
       return () => {}
     }

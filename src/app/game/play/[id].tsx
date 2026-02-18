@@ -10,7 +10,7 @@ import { Audio } from 'expo-av'
 import { useTiltGesture } from '@/lib/hooks/useTiltGesture'
 import { TiltDirection } from '@/types/tilt/TiltDirection'
 
-const TURN_DURATION_IN_SECONDS = 60
+const TURN_DURATION_IN_SECONDS = 5
 
 export default function GamePlay() {
   const { id } = useLocalSearchParams()
@@ -223,6 +223,12 @@ export default function GamePlay() {
   useTiltGesture({
     onTiltDetected: handleTiltDetected,
     enabled: !isLoading && !timerEnded,
+    config: {
+      axis: 'x',
+      threshold: 0.35,
+      cooldownMs: 900,
+      log: true,
+    },
   })
 
   const progressPercentage = (timeRemaining / TURN_DURATION_IN_SECONDS) * 100
