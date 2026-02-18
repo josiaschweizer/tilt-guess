@@ -123,7 +123,7 @@ export default function GameInstruction() {
               onPress={() => {
                 router.push({
                   pathname: '/game/play/[id]',
-                  params: { id: game.id },
+                  params: { id: game.id, disableBack: 'true' },
                 })
               }}
               icon={<ArrowRight size={18} color="#000000" />}

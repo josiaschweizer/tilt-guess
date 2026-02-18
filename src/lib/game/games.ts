@@ -33,3 +33,19 @@ export async function loadGameById(
 
   return JSON.parse(value) as { game: Game; turns: Turn[] }
 }
+
+interface PropsUpdateGame {
+  game: Game
+  turn?: Turn
+}
+
+export async function updateGame(props: PropsUpdateGame): Promise<void> {
+  const data = await loadGameById({ gameId: props.game.id })
+  if (!data) return
+
+  const turns = props.turn ? [...data.turns, props.turn] : data.turns
+  const payload = { game: props.game, turns }
+
+  const key = `${GAME_KEY_PREFIX}${props.game.id}`
+  await AsyncStorage.setItem(key, JSON.stringify(payload))
+}
