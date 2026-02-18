@@ -14,7 +14,8 @@
       "backgroundColor": "#eee0cb"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.anonymous.tiltguess"
     },
     "android": {
       "adaptiveIcon": {
@@ -22,11 +23,20 @@
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "com.anonymous.tiltguess"
     },
     "web": {
       "favicon": "./assets/tiltguess.png"
     },
-    "plugins": ["expo-router"]
+    "plugins": [
+      "expo-router",
+      [
+        "expo-sensors",
+        {
+          "motionPermission": "TiltGuess benötigt Zugriff auf Bewegungsdaten, um Kipp-Gesten im Spiel zu erkennen."
+        }
+      ]
+    ]
   }
 }
