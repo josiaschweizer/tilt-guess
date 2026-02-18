@@ -1,21 +1,23 @@
 import { useEffect, useCallback, useRef } from 'react'
 import { Accelerometer } from 'expo-sensors'
 import {
+  DEFAULT_TILT_CONFIG,
   detectTilt,
   resetTiltState,
-  type TiltDirection,
-  type TiltConfig,
-  DEFAULT_TILT_CONFIG,
 } from '@/lib/sensors/tiltDetection'
+import { TiltConfig } from '@/interface/tilt/TiltConfig'
+import { TiltDirection } from '@/types/tilt/TiltDirection'
+import { TiltDebugInfo } from '@/types/tilt/TiltDebugInfo'
 
 interface UseTiltGestureProps {
   onTiltDetected: (direction: TiltDirection) => void
+  onTiltLog?: (info: TiltDebugInfo) => void
   enabled?: boolean
   config?: Partial<TiltConfig>
 }
 
 export function useTiltGesture(props: UseTiltGestureProps) {
-  const { onTiltDetected, enabled = true, config } = props
+  const { onTiltDetected, onTiltLog, enabled = true, config } = props
 
   const mergedConfig: TiltConfig = { ...DEFAULT_TILT_CONFIG, ...(config ?? {}) }
   const subsRef = useRef<Array<{ remove: () => void }>>([])
@@ -45,6 +47,7 @@ export function useTiltGesture(props: UseTiltGestureProps) {
           {},
           { accelX: data.x, accelY: data.y, accelZ: data.z },
           mergedConfig,
+          onTiltLog,
         )
         handleTilt(tilt)
       })
@@ -60,7 +63,7 @@ export function useTiltGesture(props: UseTiltGestureProps) {
       console.error('Error setting up tilt gesture recognition:', e)
       return () => {}
     }
-  }, [enabled, mergedConfig, handleTilt])
+  }, [enabled, mergedConfig, handleTilt, onTiltLog])
 
   return { isSupported: true }
 }

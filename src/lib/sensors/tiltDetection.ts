@@ -1,16 +1,9 @@
-export type TiltDirection = 'forward' | 'backward'
-
-export type TiltAxis = 'x' | 'y' | 'z'
-
-export interface TiltConfig {
-  axis: TiltAxis
-  threshold: number
-  neutralThreshold: number
-  cooldownMs: number
-  baselineAlpha: number
-  invert: boolean
-  log: boolean
-}
+import { TiltConfig } from '@/interface/tilt/TiltConfig'
+import { TiltAxis } from '@/types/tilt/TiltAxis'
+import { TiltDirection } from '@/types/tilt/TiltDirection'
+import { SensorInput } from '@/types/tilt/SensorInput'
+import { TiltState } from '@/types/tilt/TiltState'
+import { TiltDebugInfo } from '@/types/tilt/TiltDebugInfo'
 
 export const DEFAULT_TILT_CONFIG: TiltConfig = {
   axis: 'y',
@@ -22,18 +15,6 @@ export const DEFAULT_TILT_CONFIG: TiltConfig = {
   log: false,
 }
 
-type SensorInput = {
-  accelX?: number
-  accelY?: number
-  accelZ?: number
-}
-
-type TiltState = {
-  baseline: number | null
-  armed: boolean
-  lastTriggerAt: number
-}
-
 const state: TiltState = {
   baseline: null,
   armed: true,
@@ -41,8 +22,12 @@ const state: TiltState = {
 }
 
 function getAxisValue(input: SensorInput, axis: TiltAxis): number {
-  if (axis === 'x') return input.accelX ?? 0
-  if (axis === 'y') return input.accelY ?? 0
+  if (axis === 'x') {
+    return input.accelX ?? 0
+  } else if (axis === 'y') {
+    return input.accelY ?? 0
+  }
+
   return input.accelZ ?? 0
 }
 
@@ -56,11 +41,11 @@ export function detectTilt(
   _prev: unknown,
   input: SensorInput,
   config: TiltConfig = DEFAULT_TILT_CONFIG,
+  onDebug?: (info: TiltDebugInfo) => void,
 ): TiltDirection | null {
   const t = Date.now()
   const axisValueRaw = getAxisValue(input, config.axis)
 
-  // Baseline initialisieren
   if (state.baseline === null) {
     state.baseline = axisValueRaw
   }
@@ -68,6 +53,22 @@ export function detectTilt(
   const baseline = state.baseline ?? axisValueRaw
   const axisDeltaRaw = axisValueRaw - baseline
   const axisDelta = config.invert ? -axisDeltaRaw : axisDeltaRaw
+
+  const emitDebug = (
+    direction: TiltDirection | null,
+    baselineForDebug = baseline,
+  ) => {
+    onDebug?.({
+      t,
+      axis: config.axis,
+      axisValue: axisValueRaw,
+      baseline: baselineForDebug,
+      axisDelta,
+      armed: state.armed,
+      lastTriggerAt: state.lastTriggerAt,
+      direction,
+    })
+  }
 
   if (config.log) {
     console.log('[TILT] raw', {
@@ -81,36 +82,40 @@ export function detectTilt(
     })
   }
 
-  // Cooldown
   if (t - state.lastTriggerAt < config.cooldownMs) {
+    emitDebug(null)
     return null
   }
 
-  // Re-Arm + Baseline nur in Neutralzone nachziehen
   const isNeutral = Math.abs(axisDelta) <= config.neutralThreshold
   if (isNeutral) {
     state.armed = true
-    // Baseline sanft nachziehen, aber nur wenn neutral (wichtig!)
-    state.baseline = baseline + (axisValueRaw - baseline) * config.baselineAlpha
+    const nextBaseline =
+      baseline + (axisValueRaw - baseline) * config.baselineAlpha
+    state.baseline = nextBaseline
+    emitDebug(null, nextBaseline)
     return null
   }
 
-  // Nur triggern, wenn armed
   if (!state.armed) {
+    emitDebug(null)
     return null
   }
 
   if (axisDelta >= config.threshold) {
     state.armed = false
     state.lastTriggerAt = t
+    emitDebug('forward')
     return 'forward'
   }
 
   if (axisDelta <= -config.threshold) {
     state.armed = false
     state.lastTriggerAt = t
+    emitDebug('backward')
     return 'backward'
   }
 
+  emitDebug(null)
   return null
 }

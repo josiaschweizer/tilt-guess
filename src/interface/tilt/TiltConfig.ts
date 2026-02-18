@@ -1,5 +1,11 @@
+import { TiltAxis } from '@/types/tilt/TiltAxis'
+
 export interface TiltConfig {
-  gyroThreshold: number
-  debounceMs: number
-  confirmationMs: number
+  axis: TiltAxis
+  threshold: number
+  neutralThreshold: number
+  cooldownMs: number
+  baselineAlpha: number
+  invert: boolean
+  log: boolean
 }

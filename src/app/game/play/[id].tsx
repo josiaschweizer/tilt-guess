@@ -10,7 +10,7 @@ import { Audio } from 'expo-av'
 import { useTiltGesture } from '@/lib/hooks/useTiltGesture'
 import { TiltDirection } from '@/types/tilt/TiltDirection'
 
-const TURN_DURATION_IN_SECONDS = 5
+const TURN_DURATION_IN_SECONDS = 60
 
 export default function GamePlay() {
   const { id } = useLocalSearchParams()
@@ -194,7 +194,10 @@ export default function GamePlay() {
   const onCorrectPress = useCallback(() => {
     void playSound(require('@/../assets/sounds/correct-sound.mp3'))
 
-    if (!turn || timerEnded) return
+    if (!turn || timerEnded) {
+      return
+    }
+
     setTurn((prev) => (prev ? { ...prev, correct: prev.correct + 1 } : prev))
     showFeedback('correct')
     void loadNewWord()
@@ -203,7 +206,10 @@ export default function GamePlay() {
   const onSkipPress = useCallback(() => {
     void playSound(require('@/../assets/sounds/skipped-sound.mp3'))
 
-    if (!turn || timerEnded) return
+    if (!turn || timerEnded) {
+      return
+    }
+
     setTurn((prev) => (prev ? { ...prev, skipped: prev.skipped + 1 } : prev))
     showFeedback('skip')
     void loadNewWord()
@@ -228,9 +234,8 @@ export default function GamePlay() {
       threshold: 0.35,
       neutralThreshold: 0.12,
       cooldownMs: 800,
-      baselineAlpha: 0.03,
-      log: true,
       invert: false,
+      log: true,
     },
   })
 

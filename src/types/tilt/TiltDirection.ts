@@ -1,1 +1,1 @@
-export type TiltDirection = 'forward' | 'backward' | null
+export type TiltDirection = 'forward' | 'backward'
