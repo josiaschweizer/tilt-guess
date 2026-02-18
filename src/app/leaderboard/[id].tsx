@@ -7,8 +7,8 @@ import Button from '@/components/base/Button'
 import { computeLeaderboard } from '@/lib/game/leaderboard'
 import type { Game } from '@/interface/entities/Game'
 import type { Turn } from '@/interface/entities/Turn'
-import loadGameById from '@/method/games'
 import saveGameToHistory from '@/method/histories'
+import { loadGameById } from '@/method/games'
 
 export default function ResultScreen() {
   const params = useLocalSearchParams()
