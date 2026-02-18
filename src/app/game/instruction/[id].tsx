@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { Text, View } from 'react-native'
 import { ArrowRight, User } from 'lucide-react-native'
 
-import Button from '@/components/base/Button'
+import AppButton from '@/components/base/AppButton'
 import type { Game } from '@/interface/entities/Game'
 import { loadGameById } from '@/method/games'
 
@@ -85,7 +85,7 @@ export default function GameInstruction() {
             </View>
           </View>
 
-          <Button
+          <AppButton
             text="runde starten"
             onPress={() =>
               router.push({
