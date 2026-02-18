@@ -2,16 +2,13 @@ import { Alert, Text, View, Animated } from 'react-native'
 import { useEffect, useState, useCallback, useRef } from 'react'
 import { Stack, useLocalSearchParams, router } from 'expo-router'
 import { randomUUID } from 'expo-crypto'
-import { Audio } from 'expo-av'
-
 import { Game } from '@/interface/entities/Game'
 import { Turn } from '@/interface/entities/Turn'
 import { loadGameById, updateGame } from '@/lib/game/games'
 import { fetchRandomGermanWord } from '@/lib/game/randomWord'
-
+import { Audio } from 'expo-av'
 import { useTiltGesture } from '@/lib/hooks/useTiltGesture'
 import { TiltDirection } from '@/types/tilt/TiltDirection'
-import { TiltDebugInfo } from '@/types/tilt/TiltDebugInfo'
 
 const TURN_DURATION_IN_SECONDS = 60
 
@@ -26,15 +23,15 @@ export default function GamePlay() {
   const [turn, setTurn] = useState<Turn | null>(null)
   const [timerEnded, setTimerEnded] = useState(false)
 
-  const [tiltLog, setTiltLog] = useState<TiltDebugInfo | null>(null)
-
   const playSound = useCallback(
     async (soundFile: number): Promise<Audio.Sound | null> => {
       let sound: Audio.Sound | null = null
       try {
         const { sound: loadedSound } = await Audio.Sound.createAsync(
           soundFile,
-          { shouldPlay: true },
+          {
+            shouldPlay: true,
+          },
         )
         sound = loadedSound
 
@@ -196,6 +193,7 @@ export default function GamePlay() {
 
   const onCorrectPress = useCallback(() => {
     void playSound(require('@/../assets/sounds/correct-sound.mp3'))
+
     if (!turn || timerEnded) {
       return
     }
@@ -203,10 +201,11 @@ export default function GamePlay() {
     setTurn((prev) => (prev ? { ...prev, correct: prev.correct + 1 } : prev))
     showFeedback('correct')
     void loadNewWord()
-  }, [timerEnded, loadNewWord, showFeedback, playSound, turn])
+  }, [turn, timerEnded, loadNewWord, showFeedback])
 
   const onSkipPress = useCallback(() => {
     void playSound(require('@/../assets/sounds/skipped-sound.mp3'))
+
     if (!turn || timerEnded) {
       return
     }
@@ -214,7 +213,7 @@ export default function GamePlay() {
     setTurn((prev) => (prev ? { ...prev, skipped: prev.skipped + 1 } : prev))
     showFeedback('skip')
     void loadNewWord()
-  }, [timerEnded, loadNewWord, showFeedback, playSound, turn])
+  }, [turn, timerEnded, loadNewWord, showFeedback])
 
   const handleTiltDetected = useCallback(
     (direction: TiltDirection) => {
@@ -227,21 +226,14 @@ export default function GamePlay() {
     [onCorrectPress, onSkipPress],
   )
 
-  const handleTiltLog = useCallback((info: TiltDebugInfo) => {
-    setTiltLog(info)
-  }, [])
-
   useTiltGesture({
     onTiltDetected: handleTiltDetected,
-    onTiltLog: handleTiltLog,
     enabled: !isLoading && !timerEnded,
-    requestPermissionOnMount: true,
     config: {
-      axis: 'pitch',
-      thresholdRad: 0.25,
-      neutralThresholdRad: 0.1,
+      axis: 'x',
+      threshold: 0.35,
+      neutralThreshold: 0.12,
       cooldownMs: 800,
-      baselineAlpha: 0.03,
       invert: false,
       log: true,
     },
@@ -288,12 +280,6 @@ export default function GamePlay() {
           <Text className="text-5xl font-bold text-center">{currentWord}</Text>
         ) : (
           <Text className="text-2xl text-gray-400">Lädt...</Text>
-        )}
-
-        {tiltLog && (
-          <Text className="text-xs text-gray-500 text-center mt-2">
-            {`axis=${tiltLog.axis} v=${tiltLog.axisValue.toFixed(2)} base=${tiltLog.baseline.toFixed(2)} d=${tiltLog.axisDelta.toFixed(2)} armed=${tiltLog.armed ? 'yes' : 'no'} dir=${tiltLog.direction ?? '-'}`}
-          </Text>
         )}
       </View>
 
