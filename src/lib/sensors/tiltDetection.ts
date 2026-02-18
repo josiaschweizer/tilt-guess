@@ -2,16 +2,20 @@ import { TiltConfig } from '@/interface/tilt/TiltConfig'
 import { TiltDirection } from '@/types/tilt/TiltDirection'
 
 export const DEFAULT_TILT_CONFIG: TiltConfig = {
-  gyroThreshold: 3.5,
-  debounceMs: 800,
-  confirmationMs: 60,
+  gyroThreshold: 5.5,
+  debounceMs: 900,
+  confirmationMs: 40,
 }
 
 let lastTiltTime = 0
-let lastTiltDirection: TiltDirection = null
-
 let candidateDirection: TiltDirection = null
 let candidateStartTime = 0
+
+let isNeutral = true
+let neutralStartTime = 0
+
+const NEUTRAL_DEADZONE = 1.2
+const NEUTRAL_REQUIRED_MS = 200
 
 export interface SensorData {
   accelX?: number
@@ -28,14 +32,33 @@ export function detectTilt(
   config: TiltConfig = DEFAULT_TILT_CONFIG,
 ): TiltDirection {
   const now = Date.now()
+  const gyroY = gyroData.gyroY ?? 0
 
-  if (now - lastTiltTime < config.debounceMs) {
+  if (Math.abs(gyroY) < NEUTRAL_DEADZONE) {
+    if (!isNeutral) {
+      isNeutral = true
+      neutralStartTime = now
+    }
+  } else {
+    isNeutral = false
+    neutralStartTime = 0
+  }
+
+  const hasPreviousTilt = lastTiltTime > 0
+  const timeSinceLastTilt = now - lastTiltTime
+  const neutralLongEnough =
+    isNeutral &&
+    neutralStartTime > 0 &&
+    now - neutralStartTime >= NEUTRAL_REQUIRED_MS
+
+  if (
+    hasPreviousTilt &&
+    (timeSinceLastTilt < config.debounceMs || !neutralLongEnough)
+  ) {
     candidateDirection = null
     candidateStartTime = 0
     return null
   }
-
-  const gyroY = gyroData.gyroY ?? 0
 
   let currentDirection: TiltDirection = null
   if (gyroY > config.gyroThreshold) {
@@ -61,20 +84,17 @@ export function detectTilt(
     return null
   }
 
-  if (candidateDirection !== lastTiltDirection) {
-    lastTiltDirection = candidateDirection
-    lastTiltTime = now
-    candidateDirection = null
-    candidateStartTime = 0
-    return lastTiltDirection
-  }
-
-  return null
+  const confirmedDirection = candidateDirection
+  lastTiltTime = now
+  candidateDirection = null
+  candidateStartTime = 0
+  return confirmedDirection
 }
 
 export function resetTiltState(): void {
   lastTiltTime = 0
-  lastTiltDirection = null
   candidateDirection = null
   candidateStartTime = 0
+  isNeutral = true
+  neutralStartTime = 0
 }

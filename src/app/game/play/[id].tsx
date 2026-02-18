@@ -1,5 +1,5 @@
-import { Alert, Text, View } from 'react-native'
-import { useEffect, useState, useCallback } from 'react'
+import { Alert, Text, View, Animated } from 'react-native'
+import { useEffect, useState, useCallback, useRef } from 'react'
 import { Stack, useLocalSearchParams, router } from 'expo-router'
 import { randomUUID } from 'expo-crypto'
 import { Game } from '@/interface/entities/Game'
@@ -7,6 +7,8 @@ import { Turn } from '@/interface/entities/Turn'
 import { loadGameById, updateGame } from '@/lib/game/games'
 import { fetchRandomGermanWord } from '@/lib/game/randomWord'
 import { Audio } from 'expo-av'
+import { useTiltGesture } from '@/lib/hooks/useTiltGesture'
+import { TiltDirection } from '@/types/tilt/TiltDirection'
 
 const TURN_DURATION_IN_SECONDS = 60
 
@@ -48,10 +50,28 @@ export default function GamePlay() {
     [],
   )
 
+  const feedbackAnim = useRef(new Animated.Value(0)).current
+  const [feedbackType, setFeedbackType] = useState<'correct' | 'skip' | null>(
+    null,
+  )
+
   const loadNewWord = useCallback(async () => {
     const word = await fetchRandomGermanWord()
     setCurrentWord(word)
   }, [])
+
+  const showFeedback = useCallback(
+    (type: 'correct' | 'skip') => {
+      setFeedbackType(type)
+      feedbackAnim.setValue(1)
+      Animated.timing(feedbackAnim, {
+        toValue: 0,
+        duration: 500,
+        useNativeDriver: true,
+      }).start(() => setFeedbackType(null))
+    },
+    [feedbackAnim],
+  )
 
   const onTimerEnd = useCallback(
     async (currentTurn: Turn, currentGame: Game) => {
@@ -161,9 +181,7 @@ export default function GamePlay() {
         })
       }, 1000)
 
-      return () => {
-        clearInterval(timerId)
-      }
+      return () => clearInterval(timerId)
     }
   }, [isLoading, game, timerEnded])
 
@@ -173,37 +191,63 @@ export default function GamePlay() {
     }
   }, [timerEnded, turn, game, onTimerEnd])
 
-  const onCorrectPress = () => {
+  const onCorrectPress = useCallback(() => {
     void playSound(require('@/../assets/sounds/correct-sound.mp3'))
 
     if (!turn || timerEnded) return
-
-    const updatedTurn: Turn = {
-      ...turn,
-      correct: turn.correct + 1,
-    }
-    setTurn(updatedTurn)
+    setTurn((prev) => (prev ? { ...prev, correct: prev.correct + 1 } : prev))
+    showFeedback('correct')
     void loadNewWord()
-  }
+  }, [turn, timerEnded, loadNewWord, showFeedback])
 
-  const onSkipPress = () => {
+  const onSkipPress = useCallback(() => {
     void playSound(require('@/../assets/sounds/skipped-sound.mp3'))
 
     if (!turn || timerEnded) return
-
-    const updatedTurn: Turn = {
-      ...turn,
-      skipped: turn.skipped + 1,
-    }
-    setTurn(updatedTurn)
+    setTurn((prev) => (prev ? { ...prev, skipped: prev.skipped + 1 } : prev))
+    showFeedback('skip')
     void loadNewWord()
-  }
+  }, [turn, timerEnded, loadNewWord, showFeedback])
+
+  const handleTiltDetected = useCallback(
+    (direction: TiltDirection) => {
+      if (direction === 'forward') {
+        onCorrectPress()
+      } else if (direction === 'backward') {
+        onSkipPress()
+      }
+    },
+    [onCorrectPress, onSkipPress],
+  )
+
+  useTiltGesture({
+    onTiltDetected: handleTiltDetected,
+    enabled: !isLoading && !timerEnded,
+  })
 
   const progressPercentage = (timeRemaining / TURN_DURATION_IN_SECONDS) * 100
+
+  const feedbackColor =
+    feedbackType === 'correct'
+      ? 'rgba(16,185,129,0.25)'
+      : 'rgba(239,68,68,0.25)'
 
   return (
     <View className="flex-1 p-5 bg-background">
       <Stack.Screen options={{ title: 'Game', orientation: 'landscape' }} />
+
+      {feedbackType && (
+        <Animated.View
+          pointerEvents="none"
+          style={{
+            position: 'absolute',
+            inset: 0,
+            backgroundColor: feedbackColor,
+            opacity: feedbackAnim,
+            zIndex: 10,
+          }}
+        />
+      )}
 
       <View className="mb-5">
         <View className="h-2 bg-gray-300 rounded overflow-hidden">
@@ -224,11 +268,14 @@ export default function GamePlay() {
           <Text className="text-2xl text-gray-400">Lädt...</Text>
         )}
       </View>
+
       {turn && (
         <View className="flex-row justify-between px-10 mb-5">
-          <Text className="text-xl font-semibold">Richtig: {turn.correct}</Text>
-          <Text className="text-xl font-semibold">
-            Übersprungen: {turn.skipped}
+          <Text className="text-xl font-semibold text-green-600">
+            ✓ Richtig: {turn.correct}
+          </Text>
+          <Text className="text-xl font-semibold text-gray-500">
+            → Übersprungen: {turn.skipped}
           </Text>
         </View>
       )}
