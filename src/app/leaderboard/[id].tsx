@@ -1,13 +1,11 @@
 import { router, Stack, useLocalSearchParams } from 'expo-router'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { ScrollView, Text, View } from 'react-native'
 import { Home, RotateCcw, Trophy } from 'lucide-react-native'
 
 import AppButton from '@/components/base/AppButton'
-import { computeLeaderboard } from '@/lib/game/leaderboard'
+import { computeLeaderboard, LeaderboardRow } from '@/lib/game/leaderboard'
 import type { Game } from '@/interface/entities/Game'
-import type { Turn } from '@/interface/entities/Turn'
-import saveGameToHistory from '@/lib/game/histories'
 import getRankBadge from '@/components/ui/rank/RankBadge'
 import { loadGameById } from '@/lib/game/games'
 
@@ -18,8 +16,7 @@ export default function ResultScreen() {
   const gameId = Array.isArray(idParam) ? idParam[0] : idParam
 
   const [game, setGame] = useState<Game | null>(null)
-  const [turns, setTurns] = useState<Turn[]>([])
-  const didSaveRef = useRef(false)
+  const [leaderboard, setLeaderboard] = useState<LeaderboardRow[]>([])
 
   useEffect(() => {
     const load = async () => {
@@ -35,54 +32,15 @@ export default function ResultScreen() {
       }
 
       setGame(data.game)
-      setTurns(data.turns)
+      setLeaderboard(computeLeaderboard(data.game.players, data.turns))
     }
 
     load()
   }, [gameId])
 
-  const leaderboard = useMemo(() => {
-    if (!game) {
-      return []
-    }
-
-    return computeLeaderboard(game.players, turns)
-  }, [game, turns])
-
   const winner = leaderboard[0]
 
-  useEffect(() => {
-    const save = async () => {
-      if (!game) {
-        return
-      }
-      if (!winner) {
-        return
-      }
-      if (didSaveRef.current) {
-        return
-      }
-
-      didSaveRef.current = true
-
-      await saveGameToHistory({
-        id: game.id,
-        createdAtIso: game.createdAtIso,
-        rounds: game.rounds,
-        playerNames: game.players.map((p) => p.name),
-        winner: {
-          playerName: winner.player.name,
-          correct: winner.correct,
-          skipped: winner.skipped,
-        },
-      })
-    }
-
-    save()
-  }, [game, winner])
-
   const startNewGame = () => {
-    // todo: clear current game from storage (the one with gameId)
     router.push('/game/setup')
   }
 

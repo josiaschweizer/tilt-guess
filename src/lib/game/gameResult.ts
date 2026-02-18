@@ -6,6 +6,7 @@ import { computeLeaderboard, type LeaderboardRow } from './leaderboard'
 
 export interface GameResult {
   id: string
+  name: string
   createdAtIso: string
   rounds: number
   players: Player[]
@@ -27,6 +28,7 @@ export function buildGameResult(game: Game, turns: Turn[]): GameResult {
 
   return {
     id: game.id,
+    name: game.name,
     createdAtIso: game.createdAtIso,
     rounds: game.rounds,
     players: game.players,

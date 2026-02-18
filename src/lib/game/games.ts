@@ -49,3 +49,41 @@ export async function updateGame(props: PropsUpdateGame): Promise<void> {
   const key = `${GAME_KEY_PREFIX}${props.game.id}`
   await AsyncStorage.setItem(key, JSON.stringify(payload))
 }
+
+export async function loadGames(): Promise<{ game: Game; turns: Turn[] }[]> {
+  const allKeys = await AsyncStorage.getAllKeys()
+  const gameKeys = allKeys.filter((key) => key.startsWith(GAME_KEY_PREFIX))
+
+  if (gameKeys.length === 0) {
+    return []
+  }
+
+  const pairs = await AsyncStorage.multiGet(gameKeys)
+  const results: { game: Game; turns: Turn[] }[] = []
+
+  for (const [, value] of pairs) {
+    if (value) {
+      results.push(JSON.parse(value) as { game: Game; turns: Turn[] })
+    }
+  }
+
+  return results
+}
+
+interface PropsDeleteGame {
+  gameId: string
+}
+
+export async function deleteGame(props: PropsDeleteGame): Promise<void> {
+  const key = `${GAME_KEY_PREFIX}${props.gameId}`
+  await AsyncStorage.removeItem(key)
+}
+
+export async function deleteAllGames(): Promise<void> {
+  const allKeys = await AsyncStorage.getAllKeys()
+  const gameKeys = allKeys.filter((key) => key.startsWith(GAME_KEY_PREFIX))
+
+  if (gameKeys.length > 0) {
+    await AsyncStorage.multiRemove(gameKeys)
+  }
+}

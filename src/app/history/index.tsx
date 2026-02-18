@@ -1,44 +1,39 @@
 import { router, Stack } from 'expo-router'
 import { useEffect, useState } from 'react'
 import { Alert, FlatList, Pressable, Text, View } from 'react-native'
-import type { GameHistoryItem } from '@/interface/GameHistoryItem'
 import HistoryRow from '@/components/ui/history/HistoryRow'
 import AppButton from '@/components/base/AppButton'
 import { Trash2, Trophy } from 'lucide-react-native'
+import { loadGames, deleteGame, deleteAllGames } from '@/lib/game/games'
+import { buildGameResult, GameResult } from '@/lib/game/gameResult'
 
 export default function History() {
-  const [history, setHistory] = useState<GameHistoryItem[]>([])
+  const [history, setHistory] = useState<GameResult[]>([])
 
   useEffect(() => {
-    // todo: load history from storage and setHistory(...)
-    setHistory([
-      {
-        id: 'demo-1',
-        createdAtIso: new Date().toISOString(),
-        rounds: 3,
-        playerNames: ['josia', 'marko'],
-        winner: { playerName: 'josia', correct: 12, skipped: 2 },
-      },
-      {
-        id: 'demo-2',
-        createdAtIso: new Date(Date.now() - 1000 * 60 * 70).toISOString(),
-        rounds: 2,
-        playerNames: ['josia', 'marko', 'laurin'],
-        winner: { playerName: 'marko', correct: 9, skipped: 1 },
-      },
-    ])
+    const load = async () => {
+      const allGames = await loadGames()
+      const results = allGames.map(({ game, turns }) =>
+        buildGameResult(game, turns),
+      )
+      results.sort(
+        (a, b) => +new Date(b.createdAtIso) - +new Date(a.createdAtIso),
+      )
+      setHistory(results)
+    }
+    void load()
   }, [])
 
   const openDetail = (gameId: string) => {
     router.push({ pathname: '/leaderboard/[id]', params: { id: gameId } })
   }
 
-  const deleteGame = (gameId: string) => {
-    // todo: delete single game from storage
+  const handleDeleteGame = async (gameId: string) => {
+    await deleteGame({ gameId })
     setHistory((prev) => prev.filter((g) => g.id !== gameId))
   }
 
-  const deleteAllGames = () => {
+  const handleDeleteAllGames = () => {
     Alert.alert(
       'Spielverlauf löschen?',
       'Willst du wirklich alle Spiele entfernen?',
@@ -47,8 +42,8 @@ export default function History() {
         {
           text: 'Löschen',
           style: 'destructive',
-          onPress: () => {
-            // todo: delete all games from storage
+          onPress: async () => {
+            await deleteAllGames()
             setHistory([])
           },
         },
@@ -64,11 +59,10 @@ export default function History() {
           headerRight: () =>
             history.length === 0 ? null : (
               <Pressable
-                onPress={deleteAllGames}
-                className="h-11 w-11 items-center justify-center"
-                hitSlop={10}
+                onPress={handleDeleteAllGames}
+                className="h-10 w-10 items-center justify-center"
               >
-                <Trash2 size={24} color="#000000" />
+                <Trash2 size={22} color="#000000" />
               </Pressable>
             ),
         }}
@@ -76,11 +70,7 @@ export default function History() {
 
       <View className="w-full max-w-md self-center flex-1">
         <FlatList
-          data={history
-            .slice()
-            .sort(
-              (a, b) => +new Date(b.createdAtIso) - +new Date(a.createdAtIso),
-            )}
+          data={history}
           keyExtractor={(item) => item.id}
           contentContainerStyle={{
             paddingBottom: 24,
@@ -88,12 +78,11 @@ export default function History() {
             justifyContent: history.length === 0 ? 'center' : 'flex-start',
           }}
           ItemSeparatorComponent={() => <View className="h-4" />}
-          renderItem={({ item, index }) => (
+          renderItem={({ item }) => (
             <HistoryRow
               game={item}
-              title={`Game: ${history.length - index}`}
               onPress={() => openDetail(item.id)}
-              onDelete={() => deleteGame(item.id)}
+              onDelete={() => handleDeleteGame(item.id)}
             />
           )}
           ListEmptyComponent={
@@ -105,7 +94,6 @@ export default function History() {
               <Text className="text-2xl font-black text-text text-center mb-2">
                 Noch keine Spiele gespielt
               </Text>
-
               <Text className="text-black/70 text-center mb-8 leading-5">
                 Starte dein erstes TiltGuess Spiel{'\n'}
                 und verfolge hier deinen Fortschritt.

@@ -1,6 +1,6 @@
 import { Pressable, Text, View } from 'react-native'
-import { Calendar, ChevronRight, Trash2 } from 'lucide-react-native'
-import type { GameHistoryItem } from '@/interface/GameHistoryItem'
+import { Calendar, ChevronRight } from 'lucide-react-native'
+import { GameResult } from '@/lib/game/gameResult'
 
 function formatDate(iso: string) {
   const d = new Date(iso)
@@ -18,13 +18,12 @@ function formatTime(iso: string) {
 }
 
 interface Props {
-  game: GameHistoryItem
-  title: string
+  game: GameResult
   onPress: () => void
   onDelete: () => void
 }
 
-export default function HistoryRow({ game, title, onPress, onDelete }: Props) {
+export default function HistoryRow({ game, onPress, onDelete }: Props) {
   return (
     <Pressable
       onPress={onPress}
@@ -43,7 +42,7 @@ export default function HistoryRow({ game, title, onPress, onDelete }: Props) {
           </View>
 
           <View className="ml-4 flex-1">
-            <Text className="text-xl font-black text-text">{title}</Text>
+            <Text className="text-xl font-black text-text">{game.name}</Text>
 
             <View className="flex-row items-center mt-1">
               <Calendar size={14} color="#000000" />
