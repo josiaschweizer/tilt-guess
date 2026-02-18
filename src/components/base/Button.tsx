@@ -1,5 +1,11 @@
 import React from 'react'
-import { Pressable, Text, View, StyleProp, ViewStyle } from 'react-native'
+import {
+  Text,
+  View,
+  StyleProp,
+  ViewStyle,
+  TouchableOpacity,
+} from 'react-native'
 
 interface ButtonProps {
   text: string
@@ -29,11 +35,11 @@ export default function Button({
   const textClass = primary ? 'text-on-primary' : 'text-text'
 
   return (
-    <Pressable
+    <TouchableOpacity
       disabled={disabled}
       onPress={onPress}
       className={`${base} ${width} ${colors} ${disabledClass}`}
-      style={({ pressed }): StyleProp<ViewStyle> => [
+      style={[
         style,
         primary && {
           shadowColor: '#000',
@@ -42,14 +48,11 @@ export default function Button({
           shadowOffset: { width: 0, height: 6 },
           elevation: 5,
         },
-        pressed && !disabled
-          ? { transform: [{ scale: 0.97 }], opacity: 0.92 }
-          : null,
       ]}
-      android_ripple={{ color: 'rgba(0,0,0,0.08)' }}
+      activeOpacity={0.7}
     >
       {icon ? <View className="mr-3">{icon}</View> : null}
       <Text className={`font-bold text-lg ${textClass}`}>{text}</Text>
-    </Pressable>
+    </TouchableOpacity>
   )
 }
