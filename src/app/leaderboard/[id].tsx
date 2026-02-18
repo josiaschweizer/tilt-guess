@@ -1,14 +1,15 @@
 import { router, Stack, useLocalSearchParams } from 'expo-router'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { ScrollView, Text, View } from 'react-native'
-import { Award, Home, Medal, RotateCcw, Trophy } from 'lucide-react-native'
+import { Home, RotateCcw, Trophy } from 'lucide-react-native'
 
 import AppButton from '@/components/base/AppButton'
 import { computeLeaderboard } from '@/lib/game/leaderboard'
 import type { Game } from '@/interface/entities/Game'
 import type { Turn } from '@/interface/entities/Turn'
-import loadGameById from '@/method/games'
 import saveGameToHistory from '@/method/histories'
+import { loadGameById } from '@/method/games'
+import getRankBadge from '@/components/ui/rank/RankBadge'
 
 export default function ResultScreen() {
   const params = useLocalSearchParams()
@@ -29,7 +30,7 @@ export default function ResultScreen() {
 
       const data = await loadGameById(gameId)
       if (!data) {
-        router.push('/game/setup')
+        router.replace('/game/setup')
         return
       }
 
@@ -89,150 +90,122 @@ export default function ResultScreen() {
     router.push('/')
   }
 
-  const getRankBadge = (rank: number) => {
-    switch (rank) {
-      case 1:
-        return (
-          <View className="h-10 w-10 rounded-2xl bg-surface border border-black/10 items-center justify-center">
-            <Trophy size={22} color="#000000" />
-          </View>
-        )
-      case 2:
-        return (
-          <View className="h-10 w-10 rounded-2xl bg-surface border border-black/10 items-center justify-center">
-            <Medal size={22} color="#000000" />
-          </View>
-        )
-      case 3:
-        return (
-          <View className="h-10 w-10 rounded-2xl bg-surface border border-black/10 items-center justify-center">
-            <Award size={22} color="#000000" />
-          </View>
-        )
-      default:
-        return (
-          <View className="h-10 w-10 rounded-2xl bg-surface border border-black/10 items-center justify-center">
-            <Text className="text-text font-black">#{rank}</Text>
-          </View>
-        )
-    }
-  }
-
-  if (!game) return null
-
   return (
     <View className="flex-1 bg-bg">
       <Stack.Screen options={{ title: 'Resultat' }} />
 
-      <ScrollView
-        className="flex-1"
-        contentContainerStyle={{
-          paddingHorizontal: 24,
-          paddingVertical: 24,
-          paddingBottom: 40,
-        }}
-      >
-        <View className="w-full max-w-md self-center">
-          {/* winner card */}
-          <View className="rounded-3xl bg-surface border border-black/10 p-7 mb-5">
-            <View className="items-center">
-              <View className="h-20 w-20 rounded-3xl bg-bg border border-black/10 items-center justify-center mb-4">
-                <Trophy size={36} color="#000000" />
-              </View>
+      {!game ? (
+        <View className="flex-1" />
+      ) : (
+        <ScrollView
+          className="flex-1"
+          contentContainerStyle={{
+            paddingHorizontal: 24,
+            paddingVertical: 24,
+            paddingBottom: 40,
+          }}
+        >
+          <View className="w-full max-w-md self-center">
+            <View className="rounded-3xl bg-surface border border-black/10 p-7 mb-5">
+              <View className="items-center">
+                <View className="h-20 w-20 rounded-3xl bg-bg border border-black/10 items-center justify-center mb-4">
+                  <Trophy size={36} color="#000000" />
+                </View>
 
-              <Text className="text-3xl font-black text-text text-center mb-1">
-                Gewinner
-              </Text>
-
-              <Text className="text-2xl font-black text-text text-center mb-5">
-                {winner?.player.name ?? '—'}
-              </Text>
-
-              <View className="rounded-3xl bg-bg border border-black/10 px-8 py-5 items-center">
-                <Text className="text-5xl font-black text-text">
-                  {winner?.correct ?? 0}
+                <Text className="text-3xl font-black text-text text-center mb-1">
+                  Gewinner
                 </Text>
-                <Text className="text-black/70">punkte</Text>
-              </View>
 
-              {winner ? (
-                <Text className="text-black/70 mt-4">
-                  {winner.skipped} übersprungen
+                <Text className="text-2xl font-black text-text text-center mb-5">
+                  {winner?.player.name ?? '—'}
                 </Text>
-              ) : null}
+
+                <View className="rounded-3xl bg-bg border border-black/10 px-8 py-5 items-center">
+                  <Text className="text-5xl font-black text-text">
+                    {winner?.correct ?? 0}
+                  </Text>
+                  <Text className="text-black/70">punkte</Text>
+                </View>
+
+                {winner ? (
+                  <Text className="text-black/70 mt-4">
+                    {winner.skipped} übersprungen
+                  </Text>
+                ) : null}
+              </View>
             </View>
-          </View>
 
-          <View className="rounded-3xl bg-surface border border-black/10 p-6 mb-5">
-            <Text className="text-2xl font-black text-text mb-5">
-              Rangliste
-            </Text>
+            <View className="rounded-3xl bg-surface border border-black/10 p-6 mb-5">
+              <Text className="text-2xl font-black text-text mb-5">
+                Rangliste
+              </Text>
+
+              <View className="gap-3">
+                {leaderboard.map((row) => (
+                  <View
+                    key={row.player.id}
+                    className="rounded-2xl bg-bg border border-black/10 p-5 flex-row items-center"
+                  >
+                    {getRankBadge({ rank: row.rank })}
+
+                    <View className="flex-1 ml-4">
+                      <Text className="text-lg font-black text-text">
+                        {row.player.name}
+                      </Text>
+                      <Text className="text-black/70">
+                        {row.skipped} übersprungen
+                      </Text>
+                    </View>
+
+                    <View className="items-end">
+                      <Text className="text-3xl font-black text-text">
+                        {row.correct}
+                      </Text>
+                      <Text className="text-black/70">punkte</Text>
+                    </View>
+                  </View>
+                ))}
+              </View>
+            </View>
+
+            <View className="rounded-3xl bg-surface border border-black/10 p-6 mb-5">
+              <View className="flex-row">
+                <View className="flex-1 items-center">
+                  <Text className="text-3xl font-black text-text">
+                    {game.rounds}
+                  </Text>
+                  <Text className="text-black/70">runden</Text>
+                </View>
+
+                <View className="w-px bg-black/10" />
+
+                <View className="flex-1 items-center">
+                  <Text className="text-3xl font-black text-text">
+                    {game.players.length}
+                  </Text>
+                  <Text className="text-black/70">spieler</Text>
+                </View>
+              </View>
+            </View>
 
             <View className="gap-3">
-              {leaderboard.map((row) => (
-                <View
-                  key={row.player.id}
-                  className="rounded-2xl bg-bg border border-black/10 p-5 flex-row items-center"
-                >
-                  {getRankBadge(row.rank)}
-
-                  <View className="flex-1 ml-4">
-                    <Text className="text-lg font-black text-text">
-                      {row.player.name}
-                    </Text>
-                    <Text className="text-black/70">
-                      {row.skipped} übersprungen
-                    </Text>
-                  </View>
-
-                  <View className="items-end">
-                    <Text className="text-3xl font-black text-text">
-                      {row.correct}
-                    </Text>
-                    <Text className="text-black/70">punkte</Text>
-                  </View>
-                </View>
-              ))}
+              <AppButton
+                text="Neues spiel"
+                onPress={startNewGame}
+                icon={<RotateCcw size={18} color="#000000" />}
+                fullWidth
+              />
+              <AppButton
+                text="Zur startseite"
+                onPress={goHome}
+                variant="secondary"
+                icon={<Home size={18} color="#000000" />}
+                fullWidth
+              />
             </View>
           </View>
-
-          <View className="rounded-3xl bg-surface border border-black/10 p-6 mb-5">
-            <View className="flex-row">
-              <View className="flex-1 items-center">
-                <Text className="text-3xl font-black text-text">
-                  {game.rounds}
-                </Text>
-                <Text className="text-black/70">runden</Text>
-              </View>
-
-              <View className="w-px bg-black/10" />
-
-              <View className="flex-1 items-center">
-                <Text className="text-3xl font-black text-text">
-                  {game.players.length}
-                </Text>
-                <Text className="text-black/70">spieler</Text>
-              </View>
-            </View>
-          </View>
-
-          <View className="gap-3">
-            <AppButton
-              text="Neues spiel"
-              onPress={startNewGame}
-              icon={<RotateCcw size={18} color="#000000" />}
-              fullWidth
-            />
-            <AppButton
-              text="Zur startseite"
-              onPress={goHome}
-              variant="secondary"
-              icon={<Home size={18} color="#000000" />}
-              fullWidth
-            />
-          </View>
-        </View>
-      </ScrollView>
+        </ScrollView>
+      )}
     </View>
   )
 }
