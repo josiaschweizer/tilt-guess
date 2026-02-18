@@ -6,6 +6,7 @@ import { Game } from '@/interface/entities/Game'
 import { Turn } from '@/interface/entities/Turn'
 import { loadGameById, updateGame } from '@/lib/game/games'
 import { fetchRandomGermanWord } from '@/lib/game/randomWord'
+import { Audio } from 'expo-av'
 
 const TURN_DURATION_IN_SECONDS = 60
 
@@ -20,6 +21,33 @@ export default function GamePlay() {
   const [turn, setTurn] = useState<Turn | null>(null)
   const [timerEnded, setTimerEnded] = useState(false)
 
+  const playSound = useCallback(
+    async (soundFile: number): Promise<Audio.Sound | null> => {
+      let sound: Audio.Sound | null = null
+      try {
+        const { sound: loadedSound } = await Audio.Sound.createAsync(
+          soundFile,
+          {
+            shouldPlay: true,
+          },
+        )
+        sound = loadedSound
+
+        sound.setOnPlaybackStatusUpdate((status) => {
+          if (status.isLoaded && status.didJustFinish) {
+            sound?.unloadAsync()
+          }
+        })
+        return sound
+      } catch (error) {
+        console.error('Error playing sound:', error)
+        await sound?.unloadAsync()
+        return null
+      }
+    },
+    [],
+  )
+
   const loadNewWord = useCallback(async () => {
     const word = await fetchRandomGermanWord()
     setCurrentWord(word)
@@ -27,6 +55,10 @@ export default function GamePlay() {
 
   const onTimerEnd = useCallback(
     async (currentTurn: Turn, currentGame: Game) => {
+      const alarmSound = await playSound(
+        require('@/../assets/sounds/alarm-sound.mp3'),
+      )
+
       const finalTurn: Turn = {
         ...currentTurn,
         endedAtIso: new Date().toISOString(),
@@ -56,7 +88,11 @@ export default function GamePlay() {
         [
           {
             text: 'OK',
-            onPress: () => {
+            onPress: async () => {
+              if (alarmSound) {
+                await alarmSound.stopAsync()
+                await alarmSound.unloadAsync()
+              }
               if (isGameFinished) {
                 router.replace(`/leaderboard/${currentGame.id}`)
               } else {
@@ -67,7 +103,7 @@ export default function GamePlay() {
         ],
       )
     },
-    [],
+    [playSound],
   )
 
   useEffect(() => {
@@ -138,6 +174,8 @@ export default function GamePlay() {
   }, [timerEnded, turn, game, onTimerEnd])
 
   const onCorrectPress = () => {
+    void playSound(require('@/../assets/sounds/correct-sound.mp3'))
+
     if (!turn || timerEnded) return
 
     const updatedTurn: Turn = {
@@ -149,6 +187,8 @@ export default function GamePlay() {
   }
 
   const onSkipPress = () => {
+    void playSound(require('@/../assets/sounds/skipped-sound.mp3'))
+
     if (!turn || timerEnded) return
 
     const updatedTurn: Turn = {
@@ -184,7 +224,6 @@ export default function GamePlay() {
           <Text className="text-2xl text-gray-400">Lädt...</Text>
         )}
       </View>
-
       {turn && (
         <View className="flex-row justify-between px-10 mb-5">
           <Text className="text-xl font-semibold">Richtig: {turn.correct}</Text>
