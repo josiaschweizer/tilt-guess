@@ -116,7 +116,7 @@ export default function GamePlay() {
               }
               if (isGameFinished) {
                 router.replace({
-                  pathname: '/game/instruction/[id]',
+                  pathname: '/game/leaderboard/[id]',
                   params: { id: currentGame.id, disableBack: 'true' },
                 })
               } else {
