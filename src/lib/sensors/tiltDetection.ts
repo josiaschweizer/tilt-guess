@@ -1,100 +1,70 @@
 import { TiltConfig } from '@/interface/tilt/TiltConfig'
 import { TiltDirection } from '@/types/tilt/TiltDirection'
+import { SensorInput } from '@/types/tilt/SensorInput'
+import { TiltState } from '@/types/tilt/TiltState'
+import getAxisValue from '@/lib/sensors/getAxisValue'
 
 export const DEFAULT_TILT_CONFIG: TiltConfig = {
-  gyroThreshold: 5.5,
-  debounceMs: 900,
-  confirmationMs: 40,
+  axis: 'y',
+  threshold: 0.35,
+  resetThreshold: 0.15,
+  cooldownMs: 800,
+  invert: false,
 }
 
-let lastTiltTime = 0
-let candidateDirection: TiltDirection = null
-let candidateStartTime = 0
+const state: TiltState = {
+  baseline: null,
+  armed: true,
+  lastTriggerAt: 0,
+}
 
-let isNeutral = true
-let neutralStartTime = 0
-
-const NEUTRAL_DEADZONE = 1.2
-const NEUTRAL_REQUIRED_MS = 200
-
-export interface SensorData {
-  accelX?: number
-  accelY?: number
-  accelZ?: number
-  gyroX?: number
-  gyroY?: number
-  gyroZ?: number
+export function resetTiltState() {
+  state.baseline = null
+  state.armed = true
+  state.lastTriggerAt = 0
 }
 
 export function detectTilt(
-  _accelData: SensorData,
-  gyroData: SensorData,
+  _prev: unknown,
+  input: SensorInput,
   config: TiltConfig = DEFAULT_TILT_CONFIG,
-): TiltDirection {
-  const now = Date.now()
-  const gyroY = gyroData.gyroY ?? 0
+): TiltDirection | null {
+  const t = Date.now()
+  const axisValueRaw = getAxisValue(input, config.axis)
 
-  if (Math.abs(gyroY) < NEUTRAL_DEADZONE) {
-    if (!isNeutral) {
-      isNeutral = true
-      neutralStartTime = now
+  if (state.baseline === null) {
+    state.baseline = axisValueRaw
+  }
+
+  const baseline = state.baseline ?? axisValueRaw
+  const axisDeltaRaw = axisValueRaw - baseline
+  const axisDelta = config.invert ? -axisDeltaRaw : axisDeltaRaw
+  const absAxisDelta = Math.abs(axisDelta)
+  const resetThreshold = config.resetThreshold ?? config.threshold / 2
+
+  if (t - state.lastTriggerAt < config.cooldownMs) {
+    return null
+  }
+
+  if (!state.armed) {
+    if (absAxisDelta <= resetThreshold) {
+      state.armed = true
     }
-  } else {
-    isNeutral = false
-    neutralStartTime = 0
-  }
 
-  const hasPreviousTilt = lastTiltTime > 0
-  const timeSinceLastTilt = now - lastTiltTime
-  const neutralLongEnough =
-    isNeutral &&
-    neutralStartTime > 0 &&
-    now - neutralStartTime >= NEUTRAL_REQUIRED_MS
-
-  if (
-    hasPreviousTilt &&
-    (timeSinceLastTilt < config.debounceMs || !neutralLongEnough)
-  ) {
-    candidateDirection = null
-    candidateStartTime = 0
     return null
   }
 
-  let currentDirection: TiltDirection = null
-  if (gyroY > config.gyroThreshold) {
-    currentDirection = 'backward'
-  } else if (gyroY < -config.gyroThreshold) {
-    currentDirection = 'forward'
+  if (axisDelta >= config.threshold) {
+    state.armed = false
+    state.lastTriggerAt = t
+    return 'forward'
   }
 
-  if (currentDirection === null) {
-    candidateDirection = null
-    candidateStartTime = 0
-    return null
+  if (axisDelta <= -config.threshold) {
+    state.armed = false
+    state.lastTriggerAt = t
+    return 'backward'
   }
 
-  if (currentDirection !== candidateDirection) {
-    candidateDirection = currentDirection
-    candidateStartTime = now
-    return null
-  }
-
-  const heldFor = now - candidateStartTime
-  if (heldFor < config.confirmationMs) {
-    return null
-  }
-
-  const confirmedDirection = candidateDirection
-  lastTiltTime = now
-  candidateDirection = null
-  candidateStartTime = 0
-  return confirmedDirection
-}
-
-export function resetTiltState(): void {
-  lastTiltTime = 0
-  candidateDirection = null
-  candidateStartTime = 0
-  isNeutral = true
-  neutralStartTime = 0
+  return null
 }

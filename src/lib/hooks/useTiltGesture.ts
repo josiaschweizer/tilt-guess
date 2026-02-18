@@ -1,66 +1,77 @@
-import { useEffect, useCallback, useRef } from 'react'
-import { Gyroscope } from 'expo-sensors'
+import { useEffect, useCallback, useRef, useMemo } from 'react'
+import { Accelerometer } from 'expo-sensors'
 import {
+  DEFAULT_TILT_CONFIG,
   detectTilt,
   resetTiltState,
-  type TiltDirection,
-  type TiltConfig,
-  DEFAULT_TILT_CONFIG,
 } from '@/lib/sensors/tiltDetection'
+import { TiltConfig } from '@/interface/tilt/TiltConfig'
+import { TiltDirection } from '@/types/tilt/TiltDirection'
 
 interface UseTiltGestureProps {
   onTiltDetected: (direction: TiltDirection) => void
   enabled?: boolean
-  config?: TiltConfig
+  config?: Partial<TiltConfig>
 }
 
 export function useTiltGesture(props: UseTiltGestureProps) {
-  const { onTiltDetected, enabled = true, config = DEFAULT_TILT_CONFIG } = props
+  const { onTiltDetected, enabled = true, config } = props
 
-  const subscriptionsRef = useRef<Array<{ remove: () => void }>>([])
-
-  const handleTilt = useCallback(
-    (direction: TiltDirection) => {
-      if (direction) {
-        onTiltDetected(direction)
-      }
-    },
-    [onTiltDetected],
+  const mergedConfig = useMemo(
+    () => ({ ...DEFAULT_TILT_CONFIG, ...(config ?? {}) }),
+    [config],
   )
+
+  const subsRef = useRef<Array<{ remove: () => void }>>([])
+  const configRef = useRef<TiltConfig>(mergedConfig)
+  const onTiltDetectedRef =
+    useRef<UseTiltGestureProps['onTiltDetected']>(onTiltDetected)
+
+  useEffect(() => {
+    configRef.current = mergedConfig
+  }, [mergedConfig])
+
+  useEffect(() => {
+    onTiltDetectedRef.current = onTiltDetected
+  }, [onTiltDetected])
+
+  const handleTilt = useCallback((direction: TiltDirection | null) => {
+    if (direction && onTiltDetectedRef.current) {
+      onTiltDetectedRef.current(direction)
+    }
+  }, [])
 
   useEffect(() => {
     if (!enabled) {
-      subscriptionsRef.current.forEach((sub) => sub.remove?.())
-      subscriptionsRef.current = []
+      subsRef.current.forEach((s) => s.remove?.())
+      subsRef.current = []
       return
     }
 
     try {
-      Gyroscope.setUpdateInterval(50)
+      Accelerometer.setUpdateInterval(50)
+      resetTiltState()
 
-      const gyroSubscription = Gyroscope.addListener((data) => {
+      const sub = Accelerometer.addListener((data) => {
         const tilt = detectTilt(
           {},
-          { gyroX: data.x, gyroY: data.y, gyroZ: data.z },
-          config,
+          { accelX: data.x, accelY: data.y, accelZ: data.z },
+          configRef.current,
         )
         handleTilt(tilt)
       })
 
-      subscriptionsRef.current = [gyroSubscription]
+      subsRef.current = [sub]
 
       return () => {
-        subscriptionsRef.current.forEach((sub) => sub.remove?.())
-        subscriptionsRef.current = []
-        resetTiltState()
+        subsRef.current.forEach((s) => s.remove?.())
+        subsRef.current = []
+        // Nicht resetTiltState() hier aufrufen - das erhält die Baseline
       }
-    } catch (error) {
-      console.error('Error setting up tilt gesture recognition:', error)
+    } catch (e) {
       return () => {}
     }
-  }, [enabled, config, handleTilt])
+  }, [enabled, handleTilt])
 
-  return {
-    isSupported: true,
-  }
+  return { isSupported: true }
 }
