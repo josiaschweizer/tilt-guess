@@ -14,7 +14,7 @@ export default function GameSetup() {
   const [players, setPlayers] = useState<Player[]>([])
   const [nameInput, setNameInput] = useState('')
   const [gameName, setGameName] = useState('')
-  const [rounds, setRounds] = useState(3)
+  const [rounds, setRounds] = useState(1)
   const inputRef = useRef<TextInput>(null)
 
   const trimmedName = nameInput.trim()
