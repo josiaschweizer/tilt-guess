@@ -11,7 +11,7 @@
     "splash": {
       "image": "./assets/tiltguess.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#eee0cb"
     },
     "ios": {
       "supportsTablet": true

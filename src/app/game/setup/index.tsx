@@ -62,7 +62,11 @@ export default function GameSetup() {
       },
     })
 
-    router.push('/game/instruction/' + newGame.id)
+    console.log('Game created with ID:', newGame.id)
+    router.push({
+      pathname: '/game/instruction/[id]',
+      params: { id: newGame.id, disableBack: 'false' },
+    })
   }
 
   return (

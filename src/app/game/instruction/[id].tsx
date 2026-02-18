@@ -1,7 +1,8 @@
 import { router, Stack, useLocalSearchParams } from 'expo-router'
 import { useEffect, useMemo, useState } from 'react'
 import { Text, View, useWindowDimensions, Animated } from 'react-native'
-import { ArrowRight, User, RotateCw } from 'lucide-react-native'
+import { ArrowRight, User, RotateCw, ChevronLeft } from 'lucide-react-native'
+import { Pressable } from 'react-native'
 
 import AppButton from '@/components/base/AppButton'
 import type { Game } from '@/interface/entities/Game'
@@ -12,6 +13,13 @@ export default function GameInstruction() {
   const params = useLocalSearchParams()
   const idParam = params.id
   const gameId = Array.isArray(idParam) ? idParam[0] : idParam
+  const disableBackParam = params.disableBack
+
+  let disableBackValue = disableBackParam
+  if (Array.isArray(disableBackValue)) {
+    disableBackValue = disableBackValue[0]
+  }
+  const disableBack = disableBackValue === 'true'
 
   const [game, setGame] = useState<Game | null>(null)
   const dimensions = useWindowDimensions()
@@ -48,7 +56,23 @@ export default function GameInstruction() {
 
   return (
     <View className="flex-1 bg-bg px-6 py-6">
-      <Stack.Screen options={{ title: 'Anleitung', orientation: 'all' }} />
+      {disableBack ? (
+        <Stack.Screen
+          options={{
+            title: 'Anleitung',
+            orientation: 'all',
+            headerBackVisible: false,
+            gestureEnabled: false,
+          }}
+        />
+      ) : (
+        <Stack.Screen
+          options={{
+            title: 'Anleitung',
+            orientation: 'all',
+          }}
+        />
+      )}
 
       {!isLandscape ? (
         <View className="flex-1 items-center justify-center">
