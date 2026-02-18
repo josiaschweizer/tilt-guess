@@ -1,7 +1,7 @@
 import { Game } from '@/interface/entities/Game'
 import { Turn } from '@/interface/entities/Turn'
 
-export default async function loadGameById(
+export async function loadGameById(
   gameId: string,
 ): Promise<{ game: Game; turns: Turn[] } | null> {
   // todo: replace with real storage lookup
