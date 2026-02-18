@@ -3,6 +3,7 @@ import { GameStatus } from '@/types/GameStatus'
 
 export interface Game {
   id: string
+  name: string
   createdAtIso: string
 
   status: GameStatus

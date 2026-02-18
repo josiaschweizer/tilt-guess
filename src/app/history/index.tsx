@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react'
 import { Alert, FlatList, Pressable, Text, View } from 'react-native'
 import type { GameHistoryItem } from '@/interface/GameHistoryItem'
 import HistoryRow from '@/components/ui/history/HistoryRow'
-import Button from '@/components/base/Button'
+import AppButton from '@/components/base/AppButton'
 import { Trash2, Trophy } from 'lucide-react-native'
 
 export default function History() {
@@ -111,7 +111,7 @@ export default function History() {
                 und verfolge hier deinen Fortschritt.
               </Text>
 
-              <Button
+              <AppButton
                 text="Neues Spiel starten"
                 onPress={() => router.push('/game/setup')}
                 fullWidth={false}

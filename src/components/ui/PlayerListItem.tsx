@@ -1,16 +1,15 @@
-import { Pressable, Text, View, StyleProp, ViewStyle } from 'react-native'
+import { TouchableOpacity, Text, View } from 'react-native'
 import { Trash2, User } from 'lucide-react-native'
+import { Player } from '@/interface/entities/Player'
 
 interface PlayerListItemProps {
+  player: Player
   onDelete: (playerId: string) => void
-  playerId: string
-  playerName: string
 }
 
 export default function PlayerListItem({
+  player,
   onDelete,
-  playerId,
-  playerName,
 }: PlayerListItemProps) {
   return (
     <View className="mb-2 flex-row items-center justify-between rounded-xl border border-black/10 bg-surface px-3 py-2">
@@ -23,23 +22,20 @@ export default function PlayerListItem({
           numberOfLines={1}
           ellipsizeMode="tail"
         >
-          {playerName}
+          {player.name}
         </Text>
       </View>
-      <Pressable
-        onPress={() => onDelete(playerId)}
+      <TouchableOpacity
+        onPress={() => onDelete(player.id)}
         className="h-9 w-9 items-center justify-center rounded-full bg-primary"
-        android_ripple={{ color: 'rgba(0,0,0,0.12)', radius: 18 }}
+        activeOpacity={0.7}
         hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
-        style={({ pressed }): StyleProp<ViewStyle> => [
-          pressed ? { transform: [{ scale: 0.96 }], opacity: 0.9 } : null,
-        ]}
         accessibilityRole="button"
-        accessibilityLabel={`Remove ${playerName}`}
+        accessibilityLabel={`Remove ${player.name}`}
         accessibilityHint="Removes this player from the list"
       >
         <Trash2 size={18} color="#EEE0CB" />
-      </Pressable>
+      </TouchableOpacity>
     </View>
   )
 }

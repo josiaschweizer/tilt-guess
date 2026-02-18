@@ -3,7 +3,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { ScrollView, Text, View } from 'react-native'
 import { Award, Home, Medal, RotateCcw, Trophy } from 'lucide-react-native'
 
-import Button from '@/components/base/Button'
+import AppButton from '@/components/base/AppButton'
 import { computeLeaderboard } from '@/lib/game/leaderboard'
 import type { Game } from '@/interface/entities/Game'
 import type { Turn } from '@/interface/entities/Turn'
@@ -217,13 +217,13 @@ export default function ResultScreen() {
           </View>
 
           <View className="gap-3">
-            <Button
+            <AppButton
               text="Neues spiel"
               onPress={startNewGame}
               icon={<RotateCcw size={18} color="#000000" />}
               fullWidth
             />
-            <Button
+            <AppButton
               text="Zur startseite"
               onPress={goHome}
               variant="secondary"

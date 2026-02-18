@@ -1,7 +1,7 @@
 import { router, Stack } from 'expo-router'
 import { Image, Text, View } from 'react-native'
 import { Bell, History, Play } from 'lucide-react-native'
-import Button from '@/components/base/Button'
+import AppButton from '@/components/base/AppButton'
 import TiltGuessIcon from '../../assets/tiltguess.png'
 
 export default function Home() {
@@ -23,13 +23,13 @@ export default function Home() {
         </View>
 
         <View className="gap-4">
-          <Button
+          <AppButton
             text="Neues Spiel starten"
             onPress={() => router.push('/game/setup')}
             icon={<Play size={20} color="#EEE0CB" />}
           />
 
-          <Button
+          <AppButton
             text="Spielverlauf"
             variant="secondary"
             onPress={() => router.push('/history')}

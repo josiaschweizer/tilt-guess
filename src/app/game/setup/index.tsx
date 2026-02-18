@@ -1,32 +1,61 @@
 import { Stack, router } from 'expo-router'
 import { useRef, useState } from 'react'
-import { Pressable, ScrollView, Text, TextInput, View } from 'react-native'
+import { ScrollView, Text, TextInput, View } from 'react-native'
 import { Play, UserPlus } from 'lucide-react-native'
-import Button from '@/components/base/Button'
+import AppButton from '@/components/base/AppButton'
 import InputField from '@/components/base/InputField'
 import PlayerListItem from '@/components/ui/PlayerListItem'
 import { Player } from '@/interface/entities/Player'
+import { Game } from '@/interface/entities/Game'
+import { randomUUID } from 'expo-crypto'
 
 export default function GameSetup() {
   const [players, setPlayers] = useState<Player[]>([])
   const [nameInput, setNameInput] = useState('')
+  const [gameName, setGameName] = useState('')
+  const [rounds, setRounds] = useState(3)
   const inputRef = useRef<TextInput>(null)
 
   const trimmedName = nameInput.trim()
+  const trimmedGameName = gameName.trim()
   const canAdd = trimmedName.length > 0
+  const canStartGame = players.length >= 2 && trimmedGameName.length > 0
 
   const handleAdd = () => {
     if (!canAdd) {
       return
     }
 
-    const id = `${Date.now()}-${Math.random().toString(16).slice(2)}`
-    setPlayers((current) => [...current, { id, name: trimmedName }])
+    const newPlayer: Player = {
+      id: randomUUID(),
+      name: trimmedName,
+    }
+    setPlayers((current) => [...current, newPlayer])
     setNameInput('')
   }
 
   const handleDelete = (playerId: string) => {
     setPlayers((current) => current.filter((player) => player.id !== playerId))
+  }
+
+  const handleStartGame = () => {
+    if (!canStartGame) {
+      return
+    }
+
+    const newGame: Game = {
+      id: randomUUID(),
+      name: trimmedGameName,
+      createdAtIso: new Date().toISOString(),
+      status: 'LOBBY',
+      rounds,
+      players,
+      currentRoundIndex: 0,
+      currentPlayerIndex: 0,
+    }
+
+    // TODO: Game speichern und zur Spiel-Seite navigieren
+    router.push('/game/instruction/' + newGame.id)
   }
 
   return (
@@ -49,6 +78,14 @@ export default function GameSetup() {
             Fuege Spieler hinzu und waehle die Rundenanzahl
           </Text>
         </View>
+        <View className="mb-6">
+          <Text className="text-lg font-bold text-text mb-2">Spielname</Text>
+          <InputField
+            value={gameName}
+            placeholder="Spielname eingeben..."
+            onChangeText={setGameName}
+          />
+        </View>
         <View className="mb-3">
           <Text className="text-lg font-bold text-text">
             Spieler ({players.length})
@@ -61,55 +98,42 @@ export default function GameSetup() {
               value={nameInput}
               placeholder="Name eingeben..."
               onChangeText={setNameInput}
+              onSubmitEditing={handleAdd}
+              returnKeyType="done"
             />
           </View>
-          <Pressable
+          <AppButton
             onPress={handleAdd}
             disabled={!canAdd}
-            className={`h-12 w-12 items-center justify-center rounded-xl bg-primary ${
-              !canAdd ? 'opacity-40' : ''
-            }`}
-            android_ripple={{ color: 'rgba(0,0,0,0.12)', radius: 22 }}
-            accessibilityRole="button"
-            accessibilityLabel="Spieler hinzufuegen"
-            accessibilityHint="Fuegt den eingegebenen Spieler zur Liste hinzu"
-          >
-            <UserPlus size={20} color="#EEE0CB" />
-          </Pressable>
+            icon={<UserPlus size={20} color="#EEE0CB" />}
+            size="md"
+            fullWidth={false}
+            style={{ marginBottom: 0 }}
+          />
         </View>
         {players.length === 0 ? (
-          <Pressable
+          <AppButton
             onPress={() => inputRef.current?.focus()}
-            className="mb-10 items-center rounded-xl border border-black/10 bg-surface px-4 py-6"
-            android_ripple={{ color: 'rgba(0,0,0,0.08)' }}
-            accessibilityRole="button"
-            accessibilityLabel="Keine Spieler hinzugefügt"
-            accessibilityHint="Tippe hier, um das Eingabefeld zu fokussieren"
-          >
-            <View className="mb-3 h-14 w-14 items-center justify-center rounded-full bg-accent">
-              <UserPlus size={28} color="#000000" />
-            </View>
-
-            <Text className="text-center text-base font-semibold text-text">
-              Keine Spieler hinzugefügt
-            </Text>
-          </Pressable>
+            variant="secondary"
+            text="Keine Spieler hinzugefügt"
+            icon={<UserPlus size={28} color="#000000" />}
+            style={{ height: 80, marginBottom: 40 }}
+          />
         ) : (
           <View className="mb-10">
             {players.map((player) => (
               <PlayerListItem
                 key={player.id}
-                playerId={player.id}
-                playerName={player.name}
+                player={player}
                 onDelete={handleDelete}
               />
             ))}
           </View>
         )}
-        <Button
+        <AppButton
           text="Spiel starten"
-          onPress={() => router.push('/game/instructions')}
-          disabled={players.length === 0}
+          onPress={handleStartGame}
+          disabled={!canStartGame}
           icon={<Play size={18} color="#EEE0CB" />}
         />
       </ScrollView>
