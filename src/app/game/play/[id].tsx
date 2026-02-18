@@ -235,7 +235,6 @@ export default function GamePlay() {
   return (
     <View className="flex-1 p-5 bg-background">
       <Stack.Screen options={{ title: 'Game', orientation: 'landscape' }} />
-
       {feedbackType && (
         <Animated.View
           pointerEvents="none"
@@ -248,7 +247,6 @@ export default function GamePlay() {
           }}
         />
       )}
-
       <View className="mb-5">
         <View className="h-2 bg-gray-300 rounded overflow-hidden">
           <View
@@ -260,15 +258,20 @@ export default function GamePlay() {
           {timeRemaining}s
         </Text>
       </View>
-
       <View className="flex-1 justify-center items-center">
         {currentWord ? (
-          <Text className="text-5xl font-bold text-center">{currentWord}</Text>
+          <Text
+            className="text-5xl font-bold text-center px-4 max-w-full"
+            style={{ flexShrink: 1 }}
+            numberOfLines={2}
+            adjustsFontSizeToFit
+          >
+            {currentWord}
+          </Text>
         ) : (
           <Text className="text-2xl text-gray-400">Lädt...</Text>
         )}
       </View>
-
       {turn && (
         <View className="flex-row justify-between px-10 mb-5">
           <Text className="text-xl font-semibold text-green-600">
