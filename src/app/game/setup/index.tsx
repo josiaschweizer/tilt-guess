@@ -8,7 +8,7 @@ import PlayerListItem from '@/components/ui/PlayerListItem'
 import { Player } from '@/interface/entities/Player'
 import { Game } from '@/interface/entities/Game'
 import { randomUUID } from 'expo-crypto'
-import { createGame } from '@/method/games'
+import { createGame } from '@/lib/game/games'
 
 export default function GameSetup() {
   const [players, setPlayers] = useState<Player[]>([])

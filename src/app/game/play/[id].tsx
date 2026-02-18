@@ -1,34 +1,28 @@
 import { Alert, Text, View } from 'react-native'
 import { useEffect, useState } from 'react'
-import * as ScreenOrientation from 'expo-screen-orientation'
-import { useLocalSearchParams } from 'expo-router'
+import { Stack, useLocalSearchParams } from 'expo-router'
 import { Game } from '@/interface/entities/Game'
-import { loadGame } from '@/lib/game/game'
+import { loadGameById } from '@/lib/game/games'
 
 export default function GamePlay() {
-  const { id } = useLocalSearchParams()
+  const params = useLocalSearchParams()
+  const idParam = params.id
+  const gameId = Array.isArray(idParam) ? idParam[0] : idParam
+
   const [game, setGame] = useState<Game | null>(null)
 
   useEffect(() => {
-    ScreenOrientation.lockAsync(
-      ScreenOrientation.OrientationLock.LANDSCAPE,
-    ).catch((error) => {
-      console.error('Failed to lock orientation:', error)
-    })
+    const loadGame = async () => {
+      if (!gameId) {
+        Alert.alert('Game not found')
+        return
+      }
 
-    return () => {
-      ScreenOrientation.unlockAsync().catch((error) => {
-        console.error('Failed to unlock orientation:', error)
-      })
-    }
-  }, [])
-
-  useEffect(() => {
-    const loadGameData = async () => {
       try {
-        const data = await loadGame(id.toString())
-        if (data) {
-          setGame(data)
+        const data = await loadGameById({ gameId })
+
+        if (data?.game) {
+          setGame(data.game)
         } else {
           Alert.alert('Game not found')
         }
@@ -38,11 +32,12 @@ export default function GamePlay() {
       }
     }
 
-    void loadGameData()
-  }, [id])
+    void loadGame()
+  }, [gameId])
 
   return (
     <View>
+      <Stack.Screen options={{ title: 'Game', orientation: 'landscape' }} />
       <Text>Game Screen</Text>
     </View>
   )

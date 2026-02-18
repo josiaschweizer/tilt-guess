@@ -7,9 +7,9 @@ import AppButton from '@/components/base/AppButton'
 import { computeLeaderboard } from '@/lib/game/leaderboard'
 import type { Game } from '@/interface/entities/Game'
 import type { Turn } from '@/interface/entities/Turn'
-import saveGameToHistory from '@/method/histories'
+import saveGameToHistory from '@/lib/game/histories'
 import getRankBadge from '@/components/ui/rank/RankBadge'
-import { loadGameById } from '@/method/games'
+import { loadGameById } from '@/lib/game/games'
 
 export default function ResultScreen() {
   const params = useLocalSearchParams()

@@ -14,6 +14,7 @@ interface PropsCreateGame {
 export async function createGame(props: PropsCreateGame): Promise<void> {
   const key = `${GAME_KEY_PREFIX}${props.payload.game.id}`
   const value = JSON.stringify(props.payload)
+
   await AsyncStorage.setItem(key, value)
 }
 

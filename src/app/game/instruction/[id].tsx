@@ -5,7 +5,7 @@ import { ArrowRight, User, RotateCw } from 'lucide-react-native'
 
 import AppButton from '@/components/base/AppButton'
 import type { Game } from '@/interface/entities/Game'
-import { loadGameById } from '@/method/games'
+import { loadGameById } from '@/lib/game/games'
 import { useRotationAnimation } from '@/lib/hooks'
 
 export default function GameInstruction() {
@@ -120,12 +120,12 @@ export default function GameInstruction() {
           <View className="mt-6">
             <AppButton
               text="Runde starten"
-              onPress={() =>
+              onPress={() => {
                 router.push({
                   pathname: '/game/play/[id]',
                   params: { id: game.id },
                 })
-              }
+              }}
               icon={<ArrowRight size={18} color="#000000" />}
               fullWidth
             />
