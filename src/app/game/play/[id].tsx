@@ -226,8 +226,11 @@ export default function GamePlay() {
     config: {
       axis: 'x',
       threshold: 0.35,
-      cooldownMs: 900,
+      neutralThreshold: 0.12,
+      cooldownMs: 800,
+      baselineAlpha: 0.03,
       log: true,
+      invert: false,
     },
   })
 

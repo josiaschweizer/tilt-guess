@@ -11,16 +11,17 @@ import {
 interface UseTiltGestureProps {
   onTiltDetected: (direction: TiltDirection) => void
   enabled?: boolean
-  config?: TiltConfig
+  config?: Partial<TiltConfig>
 }
 
 export function useTiltGesture(props: UseTiltGestureProps) {
-  const { onTiltDetected, enabled = true, config = DEFAULT_TILT_CONFIG } = props
+  const { onTiltDetected, enabled = true, config } = props
 
-  const subscriptionsRef = useRef<Array<{ remove: () => void }>>([])
+  const mergedConfig: TiltConfig = { ...DEFAULT_TILT_CONFIG, ...(config ?? {}) }
+  const subsRef = useRef<Array<{ remove: () => void }>>([])
 
   const handleTilt = useCallback(
-    (direction: TiltDirection) => {
+    (direction: TiltDirection | null) => {
       if (direction) {
         onTiltDetected(direction)
       }
@@ -30,8 +31,8 @@ export function useTiltGesture(props: UseTiltGestureProps) {
 
   useEffect(() => {
     if (!enabled) {
-      subscriptionsRef.current.forEach((sub) => sub.remove?.())
-      subscriptionsRef.current = []
+      subsRef.current.forEach((s) => s.remove?.())
+      subsRef.current = []
       resetTiltState()
       return
     }
@@ -39,30 +40,27 @@ export function useTiltGesture(props: UseTiltGestureProps) {
     try {
       Accelerometer.setUpdateInterval(50)
 
-      const accelSubscription = Accelerometer.addListener((data) => {
+      const sub = Accelerometer.addListener((data) => {
         const tilt = detectTilt(
           {},
           { accelX: data.x, accelY: data.y, accelZ: data.z },
-          config,
+          mergedConfig,
         )
         handleTilt(tilt)
       })
 
-      subscriptionsRef.current = [accelSubscription]
+      subsRef.current = [sub]
 
       return () => {
-        subscriptionsRef.current.forEach((sub) => sub.remove?.())
-        subscriptionsRef.current = []
+        subsRef.current.forEach((s) => s.remove?.())
+        subsRef.current = []
         resetTiltState()
       }
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.error('Error setting up tilt gesture recognition:', error)
+    } catch (e) {
+      console.error('Error setting up tilt gesture recognition:', e)
       return () => {}
     }
-  }, [enabled, config, handleTilt])
+  }, [enabled, mergedConfig, handleTilt])
 
-  return {
-    isSupported: true,
-  }
+  return { isSupported: true }
 }
