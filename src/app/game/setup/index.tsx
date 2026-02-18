@@ -33,6 +33,7 @@ export default function GameSetup() {
     }
     setPlayers((current) => [...current, newPlayer])
     setNameInput('')
+    inputRef.current?.focus()
   }
 
   const handleDelete = (playerId: string) => {
@@ -110,6 +111,7 @@ export default function GameSetup() {
               onChangeText={setNameInput}
               onSubmitEditing={handleAdd}
               returnKeyType="done"
+              submitBehavior="submit"
             />
           </View>
           <AppButton
