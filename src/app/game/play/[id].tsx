@@ -10,7 +10,7 @@ import { Audio } from 'expo-av'
 import { useTiltGesture } from '@/lib/hooks/useTiltGesture'
 import { TiltDirection } from '@/types/tilt/TiltDirection'
 
-const TURN_DURATION_IN_SECONDS = 60
+const TURN_DURATION_IN_SECONDS = 5
 
 export default function GamePlay() {
   const { id } = useLocalSearchParams()
@@ -40,6 +40,7 @@ export default function GamePlay() {
             sound?.unloadAsync()
           }
         })
+
         return sound
       } catch (error) {
         console.error('Error playing sound:', error)
@@ -114,9 +115,15 @@ export default function GamePlay() {
                 await alarmSound.unloadAsync()
               }
               if (isGameFinished) {
-                router.replace(`/leaderboard/${currentGame.id}`)
+                router.replace({
+                  pathname: '/game/instruction/[id]',
+                  params: { id: currentGame.id, disableBack: 'true' },
+                })
               } else {
-                router.replace(`/game/instruction/${currentGame.id}`)
+                router.replace({
+                  pathname: '/game/instruction/[id]',
+                  params: { id: currentGame.id, disableBack: 'true' },
+                })
               }
             },
           },
@@ -247,7 +254,13 @@ export default function GamePlay() {
 
   return (
     <View className="flex-1 p-5 bg-background">
-      <Stack.Screen options={{ title: 'Game', orientation: 'landscape' }} />
+      <Stack.Screen
+        options={{
+          title: 'Game',
+          orientation: 'landscape',
+          headerShown: false,
+        }}
+      />
       {feedbackType && (
         <Animated.View
           pointerEvents="none"
