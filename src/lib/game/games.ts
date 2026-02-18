@@ -33,3 +33,25 @@ export async function loadGameById(
 
   return JSON.parse(value) as { game: Game; turns: Turn[] }
 }
+
+interface PropsUpdateGameTurns {
+  gameId: string
+  turns: Turn[]
+}
+
+export async function updateGameTurns(
+  props: PropsUpdateGameTurns,
+): Promise<void> {
+  const key = `${GAME_KEY_PREFIX}${props.gameId}`
+  const existingData = await AsyncStorage.getItem(key)
+
+  if (!existingData) {
+    console.warn(`Game ${props.gameId} not found in storage`)
+    return
+  }
+
+  const data = JSON.parse(existingData) as { game: Game; turns: Turn[] }
+  data.turns = props.turns
+
+  await AsyncStorage.setItem(key, JSON.stringify(data))
+}
