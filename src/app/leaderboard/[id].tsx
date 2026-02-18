@@ -8,8 +8,8 @@ import { computeLeaderboard } from '@/lib/game/leaderboard'
 import type { Game } from '@/interface/entities/Game'
 import type { Turn } from '@/interface/entities/Turn'
 import saveGameToHistory from '@/method/histories'
-import { loadGameById } from '@/method/games'
 import getRankBadge from '@/components/ui/rank/RankBadge'
+import { loadGameById } from '@/method/games'
 
 export default function ResultScreen() {
   const params = useLocalSearchParams()
@@ -28,7 +28,7 @@ export default function ResultScreen() {
         return
       }
 
-      const data = await loadGameById(gameId)
+      const data = await loadGameById({ gameId })
       if (!data) {
         router.replace('/game/setup')
         return

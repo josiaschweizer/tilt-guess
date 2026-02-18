@@ -5,6 +5,7 @@ export default function RootLayout() {
   return (
     <Stack
       screenOptions={{
+        orientation: 'portrait',
         contentStyle: {
           backgroundColor: '#EEE0CB',
         },

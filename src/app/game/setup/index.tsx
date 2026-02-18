@@ -8,6 +8,7 @@ import PlayerListItem from '@/components/ui/PlayerListItem'
 import { Player } from '@/interface/entities/Player'
 import { Game } from '@/interface/entities/Game'
 import { randomUUID } from 'expo-crypto'
+import { createGame } from '@/method/games'
 
 export default function GameSetup() {
   const [players, setPlayers] = useState<Player[]>([])
@@ -38,7 +39,7 @@ export default function GameSetup() {
     setPlayers((current) => current.filter((player) => player.id !== playerId))
   }
 
-  const handleStartGame = () => {
+  const handleStartGame = async () => {
     if (!canStartGame) {
       return
     }
@@ -54,7 +55,13 @@ export default function GameSetup() {
       currentPlayerIndex: 0,
     }
 
-    // TODO: Game speichern und zur Spiel-Seite navigieren
+    await createGame({
+      payload: {
+        game: newGame,
+        turns: [],
+      },
+    })
+
     router.push('/game/instruction/' + newGame.id)
   }
 
