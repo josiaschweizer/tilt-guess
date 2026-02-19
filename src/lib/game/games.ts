@@ -41,7 +41,9 @@ interface PropsUpdateGame {
 
 export async function updateGame(props: PropsUpdateGame): Promise<void> {
   const data = await loadGameById({ gameId: props.game.id })
-  if (!data) return
+  if (!data) {
+    return
+  }
 
   const turns = props.turn ? [...data.turns, props.turn] : data.turns
   const payload = { game: props.game, turns }

@@ -21,11 +21,14 @@ export function computeLeaderboard(
     scoreByPlayerId.set(p.id, { correct: 0, skipped: 0 })
   }
 
-  for (const t of turns) {
-    const entry = scoreByPlayerId.get(t.playerId)
-    if (!entry) continue // turn belongs to unknown player -> ignore
-    entry.correct += t.correct
-    entry.skipped += t.skipped
+  for (const turn of turns) {
+    const entry = scoreByPlayerId.get(turn.playerId)
+    if (!entry) {
+      continue
+    }
+
+    entry.correct += turn.correct
+    entry.skipped += turn.skipped
   }
 
   const rows: Omit<LeaderboardRow, 'rank'>[] = players.map((p) => {
@@ -38,8 +41,12 @@ export function computeLeaderboard(
   })
 
   rows.sort((a, b) => {
-    if (b.correct !== a.correct) return b.correct - a.correct
-    if (a.skipped !== b.skipped) return a.skipped - b.skipped
+    if (b.correct !== a.correct) {
+      return b.correct - a.correct
+    } else if (a.skipped !== b.skipped) {
+      return a.skipped - b.skipped
+    }
+
     return a.player.name.localeCompare(b.player.name)
   })
 

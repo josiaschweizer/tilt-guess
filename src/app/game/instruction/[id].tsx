@@ -1,8 +1,7 @@
 import { router, Stack, useLocalSearchParams } from 'expo-router'
 import { useEffect, useMemo, useState } from 'react'
-import { Text, View, useWindowDimensions, Animated } from 'react-native'
-import { ArrowRight, User, RotateCw, ChevronLeft } from 'lucide-react-native'
-import { Pressable } from 'react-native'
+import { Animated, Text, useWindowDimensions, View } from 'react-native'
+import { ArrowRight, RotateCw, User } from 'lucide-react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 import AppButton from '@/components/base/AppButton'
