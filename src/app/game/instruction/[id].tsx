@@ -1,6 +1,7 @@
 import { router, Stack, useLocalSearchParams } from 'expo-router'
 import { useEffect, useMemo, useState } from 'react'
 import { useWindowDimensions, View } from 'react-native'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { ArrowRight } from 'lucide-react-native'
 
 import AppButton from '@/components/base/AppButton'
@@ -27,6 +28,7 @@ export default function GameInstruction() {
   const [game, setGame] = useState<Game | null>(null)
   const dimensions = useWindowDimensions()
   const isLandscape = dimensions.width > dimensions.height
+  const insets = useSafeAreaInsets()
 
   useEffect(() => {
     const load = async () => {
@@ -65,7 +67,13 @@ export default function GameInstruction() {
         }}
       />
       {disableBack ? <GameHeader title="Anleitung" /> : null}
-      <View className="flex-1 px-6 py-6">
+      <View
+        className="flex-1 py-6"
+        style={{
+          paddingLeft: 24 + insets.left,
+          paddingRight: 24 + insets.right,
+        }}
+      >
         {!isLandscape ? (
           <OrientationGuard />
         ) : !game || !currentPlayer ? (
