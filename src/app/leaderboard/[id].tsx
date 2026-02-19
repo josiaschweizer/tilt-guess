@@ -1,5 +1,5 @@
 import { router, Stack, useLocalSearchParams } from 'expo-router'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { ScrollView, Text, View } from 'react-native'
 import { Home, RotateCcw, Trophy } from 'lucide-react-native'
 
@@ -8,10 +8,20 @@ import { computeLeaderboard, LeaderboardRow } from '@/lib/game/leaderboard'
 import type { Game } from '@/interface/entities/Game'
 import getRankBadge from '@/components/ui/rank/RankBadge'
 import { loadGameById } from '@/lib/game/games'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 export default function ResultScreen() {
   const params = useLocalSearchParams()
   const idParam = params.id
+  const disableBackParam = params.disableBack
+
+  const disableBack = useMemo(() => {
+    const rawValue = Array.isArray(disableBackParam)
+      ? disableBackParam[0]
+      : disableBackParam
+    return rawValue === 'true'
+  }, [disableBackParam])
+  const insets = useSafeAreaInsets()
 
   const gameId = Array.isArray(idParam) ? idParam[0] : idParam
 
@@ -50,7 +60,20 @@ export default function ResultScreen() {
 
   return (
     <View className="flex-1 bg-bg">
-      <Stack.Screen options={{ title: 'Resultat' }} />
+      <Stack.Screen
+        options={{
+          title: 'Resultat',
+          headerShown: !disableBack,
+          gestureEnabled: !disableBack,
+        }}
+      />
+      {disableBack ? (
+        <View style={{ paddingTop: insets.top }} className="bg-bg">
+          <View className="h-14 flex-row items-center justify-center px-2">
+            <Text className="text-lg font-black text-text">Resultat</Text>
+          </View>
+        </View>
+      ) : null}
 
       {!game ? (
         <View className="flex-1" />
