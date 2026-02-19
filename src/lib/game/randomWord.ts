@@ -1,10 +1,5 @@
 const API_URL = 'https://random-words-api.kushcreates.com/api'
 
-function decodeUtf8(buffer: ArrayBuffer): string {
-  const decoder = new TextDecoder('utf-8')
-  return decoder.decode(buffer)
-}
-
 export async function fetchRandomGermanWord(): Promise<string | null> {
   try {
     const url = new URL(API_URL)
@@ -20,19 +15,14 @@ export async function fetchRandomGermanWord(): Promise<string | null> {
     })
 
     if (!response.ok) {
-      const errorText = await response.text()
-      console.error(
-        `[ERROR] HTTP ${response.status} ${response.statusText}: ${errorText}`,
-      )
+      console.error(`[ERROR] HTTP ${response.status} ${response.statusText}`)
       return null
     }
 
-    const buffer = await response.arrayBuffer()
-    const text = decodeUtf8(buffer)
-    const data: { word: string }[] = JSON.parse(text)
-
+    const data: { word: string }[] = await response.json()
     const word = data[0]?.word
-    return word ? word.normalize('NFC') : null
+
+    return word ? word.normalize('NFC').trim() : null
   } catch (error) {
     console.error('[ERROR] Error getting random german word:', error)
     return null
