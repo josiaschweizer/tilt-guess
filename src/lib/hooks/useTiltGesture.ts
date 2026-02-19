@@ -66,7 +66,6 @@ export function useTiltGesture(props: UseTiltGestureProps) {
       return () => {
         subsRef.current.forEach((s) => s.remove?.())
         subsRef.current = []
-        // Nicht resetTiltState() hier aufrufen - das erhält die Baseline
       }
     } catch (e) {
       return () => {}

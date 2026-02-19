@@ -1,13 +1,7 @@
 import { useMemo, useEffect } from 'react'
 import { Animated } from 'react-native'
 
-/**
- * hook for a continuous rotation animation.
- *
- * @returns Object mit animatedValue und animatedStyle
- *
- */
-export function useRotationAnimation() {
+export default function useRotationAnimation() {
   const rotationAnim = useMemo(() => new Animated.Value(0), [])
 
   useEffect(() => {
