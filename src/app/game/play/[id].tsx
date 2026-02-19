@@ -92,7 +92,6 @@ export default function GamePlay() {
         : currentGame.currentRoundIndex
 
       const isGameFinished = nextRoundIndex >= currentGame.rounds
-
       const updatedGame: Game = {
         ...currentGame,
         currentPlayerIndex: isLastPlayer
