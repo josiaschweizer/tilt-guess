@@ -61,7 +61,11 @@ export default function ResultScreen() {
   return (
     <View className="flex-1 bg-bg">
       <Stack.Screen
-        options={{ title: 'Resultat', headerShown: !disableBack }}
+        options={{
+          title: 'Resultat',
+          headerShown: !disableBack,
+          gestureEnabled: !disableBack,
+        }}
       />
       {disableBack ? (
         <View style={{ paddingTop: insets.top }} className="bg-bg">
