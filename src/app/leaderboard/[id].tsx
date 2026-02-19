@@ -1,6 +1,6 @@
 import { router, Stack, useLocalSearchParams } from 'expo-router'
 import { useEffect, useMemo, useState } from 'react'
-import { ScrollView, Text, View } from 'react-native'
+import { ScrollView, View } from 'react-native'
 import { Home, RotateCcw } from 'lucide-react-native'
 
 import AppButton from '@/components/base/AppButton'
@@ -10,7 +10,7 @@ import { loadGameById } from '@/lib/game/games'
 import SplitStatCard from '@/components/ui/leaderboard/SplitStatCard'
 import LeaderboardCard from '@/components/ui/leaderboard/LeaderboardCard'
 import WinnerCard from '@/components/ui/leaderboard/WinnerCard'
-import ScreenHeader from '@/components/ui/leaderboard/ScreenHeader'
+import GameHeader from '@/components/ui/game/GameHeader'
 
 export default function ResultScreen() {
   const params = useLocalSearchParams()
@@ -63,7 +63,7 @@ export default function ResultScreen() {
           gestureEnabled: !disableBack,
         }}
       />
-      {disableBack ? <ScreenHeader title="Resultat" /> : null}
+      {disableBack ? <GameHeader title="Resultat" /> : null}
 
       {!game ? (
         <View className="flex-1" />
