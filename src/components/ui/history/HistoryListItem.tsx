@@ -23,7 +23,7 @@ interface Props {
   onDelete: () => void
 }
 
-export default function HistoryRow({ game, onPress, onDelete }: Props) {
+export default function HistoryListItem({ game, onPress }: Props) {
   return (
     <Pressable
       onPress={onPress}

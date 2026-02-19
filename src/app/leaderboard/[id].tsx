@@ -132,7 +132,7 @@ export default function ResultScreen() {
                   <Text className="text-3xl font-black text-text">
                     {game.rounds}
                   </Text>
-                  <Text className="text-black/70">runden</Text>
+                  <Text className="text-black/70">Runde(n)</Text>
                 </View>
 
                 <View className="w-px bg-black/10" />
@@ -141,7 +141,7 @@ export default function ResultScreen() {
                   <Text className="text-3xl font-black text-text">
                     {game.players.length}
                   </Text>
-                  <Text className="text-black/70">spieler</Text>
+                  <Text className="text-black/70">Spieler</Text>
                 </View>
               </View>
             </View>

@@ -1,8 +1,7 @@
 import { router, Stack, useLocalSearchParams } from 'expo-router'
 import { useEffect, useMemo, useState } from 'react'
 import { Text, View, useWindowDimensions, Animated } from 'react-native'
-import { ArrowRight, User, RotateCw, ChevronLeft } from 'lucide-react-native'
-import { Pressable } from 'react-native'
+import { ArrowRight, User, RotateCw } from 'lucide-react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 import AppButton from '@/components/base/AppButton'
@@ -133,10 +132,13 @@ export default function GameInstruction() {
                 </Text>
 
                 <Text className="text-black/80 leading-5">
-                  Wenn das Wort erraten wurde, drücke unten den Button.
+                  Wenn du bereit bist, um zu starten, drücke auf den Button
+                  unten.
                   {'\n'}
-                  Später kannst du dafür auch das Smartphone nach hinten kippen
-                  (Sensorik).
+                  Du musst dein Handy während der gesamten Runde im Querformat
+                  und auf der Stirn halten. Und mit kippen nach unten das Wort
+                  als korrekt markieren, oder mit kippen nach oben überspringen.
+                  Viel Spass!
                 </Text>
               </View>
             </View>

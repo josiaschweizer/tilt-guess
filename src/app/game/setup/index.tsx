@@ -4,7 +4,7 @@ import { ScrollView, Text, TextInput, View } from 'react-native'
 import { Play, UserPlus } from 'lucide-react-native'
 import AppButton from '@/components/base/AppButton'
 import InputField from '@/components/base/InputField'
-import PlayerListItem from '@/components/ui/PlayerListItem'
+import PlayerListItem from '@/components/ui/player/PlayerListItem'
 import { Player } from '@/interface/entities/Player'
 import { Game } from '@/interface/entities/Game'
 import { randomUUID } from 'expo-crypto'
@@ -24,6 +24,7 @@ export default function GameSetup() {
 
   const handleAdd = () => {
     if (!canAdd) {
+      inputRef.current?.blur()
       return
     }
 

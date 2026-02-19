@@ -1,7 +1,7 @@
 import { router, Stack } from 'expo-router'
 import { useEffect, useState } from 'react'
 import { Alert, FlatList, Pressable, Text, View } from 'react-native'
-import HistoryRow from '@/components/ui/history/HistoryRow'
+import HistoryListItem from '@/components/ui/history/HistoryListItem'
 import AppButton from '@/components/base/AppButton'
 import { Trash2, Trophy } from 'lucide-react-native'
 import { loadGames, deleteGame, deleteAllGames } from '@/lib/game/games'
@@ -79,7 +79,7 @@ export default function History() {
           }}
           ItemSeparatorComponent={() => <View className="h-4" />}
           renderItem={({ item }) => (
-            <HistoryRow
+            <HistoryListItem
               game={item}
               onPress={() => openDetail(item.id)}
               onDelete={() => handleDeleteGame(item.id)}
