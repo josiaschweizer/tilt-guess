@@ -10,7 +10,7 @@ import { Audio } from 'expo-av'
 import { useTiltGesture } from '@/lib/hooks/useTiltGesture'
 import { TiltDirection } from '@/types/tilt/TiltDirection'
 
-const TURN_DURATION_IN_SECONDS = 5
+const TURN_DURATION_IN_SECONDS = 60
 
 export default function GamePlay() {
   const { id } = useLocalSearchParams()
@@ -116,7 +116,7 @@ export default function GamePlay() {
               }
               if (isGameFinished) {
                 router.replace({
-                  pathname: '/game/leaderboard/[id]',
+                  pathname: '/leaderboard/[id]',
                   params: { id: currentGame.id, disableBack: 'true' },
                 })
               } else {
