@@ -4,11 +4,11 @@ import { ScrollView, Text, View } from 'react-native'
 import { Home, RotateCcw, Trophy } from 'lucide-react-native'
 
 import AppButton from '@/components/base/AppButton'
+import GameHeader from '@/components/ui/game/GameHeader'
+import getRankBadge from '@/components/ui/rank/RankBadge'
 import { computeLeaderboard, LeaderboardRow } from '@/lib/game/leaderboard'
 import type { Game } from '@/interface/entities/Game'
-import getRankBadge from '@/components/ui/rank/RankBadge'
 import { loadGameById } from '@/lib/game/games'
-import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 export default function ResultScreen() {
   const params = useLocalSearchParams()
@@ -21,7 +21,6 @@ export default function ResultScreen() {
       : disableBackParam
     return rawValue === 'true'
   }, [disableBackParam])
-  const insets = useSafeAreaInsets()
 
   const gameId = Array.isArray(idParam) ? idParam[0] : idParam
 
@@ -67,13 +66,7 @@ export default function ResultScreen() {
           gestureEnabled: !disableBack,
         }}
       />
-      {disableBack ? (
-        <View style={{ paddingTop: insets.top }} className="bg-bg">
-          <View className="h-14 flex-row items-center justify-center px-2">
-            <Text className="text-lg font-black text-text">Resultat</Text>
-          </View>
-        </View>
-      ) : null}
+      {disableBack ? <GameHeader title="Resultat" /> : null}
 
       {!game ? (
         <View className="flex-1" />

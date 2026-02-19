@@ -9,6 +9,8 @@ import { fetchRandomGermanWord } from '@/lib/game/randomWord'
 import { useAudioPlayer } from 'expo-audio'
 import { useTiltGesture } from '@/lib/hooks/useTiltGesture'
 import { TiltDirection } from '@/types/tilt/TiltDirection'
+import ScoreDisplay from '@/components/ui/game/ScoreDisplay'
+import ProgressBar from '@/components/ui/game/ProgressBar'
 
 const TURN_DURATION_IN_SECONDS = 60
 
@@ -226,8 +228,6 @@ export default function GamePlay() {
     },
   })
 
-  const progressPercentage = (timeRemaining / TURN_DURATION_IN_SECONDS) * 100
-
   const feedbackColor =
     feedbackType === 'correct'
       ? 'rgba(16,185,129,0.25)'
@@ -254,17 +254,7 @@ export default function GamePlay() {
           }}
         />
       )}
-      <View className="mb-5">
-        <View className="h-2 bg-gray-300 rounded overflow-hidden">
-          <View
-            className="h-full bg-primary"
-            style={{ width: `${progressPercentage}%` }}
-          />
-        </View>
-        <Text className="text-2xl font-bold text-center mt-2.5">
-          {timeRemaining}s
-        </Text>
-      </View>
+      <ProgressBar current={timeRemaining} total={TURN_DURATION_IN_SECONDS} />
       <View className="flex-1 justify-center items-center">
         {currentWord ? (
           <Text
@@ -280,13 +270,8 @@ export default function GamePlay() {
         )}
       </View>
       {turn && (
-        <View className="flex-row justify-between px-10 mb-5">
-          <Text className="text-xl font-semibold text-green-600">
-            ✓ Richtig: {turn.correct}
-          </Text>
-          <Text className="text-xl font-semibold text-gray-500">
-            → Übersprungen: {turn.skipped}
-          </Text>
+        <View className="px-10 mb-5">
+          <ScoreDisplay correct={turn.correct} skipped={turn.skipped} />
         </View>
       )}
     </View>
