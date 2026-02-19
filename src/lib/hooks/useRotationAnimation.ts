@@ -1,7 +1,7 @@
 import { useMemo, useEffect } from 'react'
 import { Animated } from 'react-native'
 
-export default function useRotationAnimation() {
+export function useRotationAnimation() {
   const rotationAnim = useMemo(() => new Animated.Value(0), [])
 
   useEffect(() => {
