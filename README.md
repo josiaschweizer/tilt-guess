@@ -1,162 +1,92 @@
 ## TiltGuess
 
-TiltGuess ist ein mobiles Party‑Ratespiel auf Basis von React Native und Expo. Die Spieler halten das Smartphone an die Stirn, lassen sich Begriffe erklären und markieren diese durch Kippen des Geräts als „richtig“ oder „übersprungen“. Punkte werden automatisch gezählt, Spielstände lokal gespeichert und am Ende auf einem Leaderboard angezeigt.
+TiltGuess ist ein mobiles Party-Ratespiel, das mit React Native und Expo entwickelt wurde.  
+Die Spieler halten das Smartphone an die Stirn, lassen sich Begriffe von den Mitspielern erklären und markieren diese durch Kippen des Geräts als „richtig“ oder „übersprungen“. Punkte werden automatisch gezählt, Spielstände lokal gespeichert und am Ende in einem Leaderboard ausgewertet.
+
+---
 
 ### Abstract (Kurzbeschreibung)
 
-TiltGuess ist als schnelle, einfache und offline‑fähige Alternative zu klassischen Partyspielen gedacht.  
-Der Fokus liegt auf:
+TiltGuess dient als schnelle und einfache digitale Alternative zu klassischen Party-Ratespielen.  
+Der Fokus der Anwendung liegt auf:
 
-- **Intuitiver Steuerung**: Begriffe werden ausschließlich über die Neigung des Geräts bewertet.
-- **Sofort spielbar**: Kurzes Setup, keine Registrierung, kein Backend.
-- **Klarer Auswertung**: Pro Spiel werden Punkte, Spieler und Runden übersichtlich im Leaderboard und im Spielverlauf dargestellt.
+- **Intuitiver Steuerung**  
+  Begriffe werden ausschließlich über die Neigung des Geräts bewertet.
+
+- **Sofortiger Spielbarkeit**  
+  Kurzes Setup ohne Registrierung oder Backend-Infrastruktur.
+
+- **Übersichtlicher Auswertung**  
+  Pro Spiel werden Punkte, Spieler und Runden in einem Leaderboard sowie im Spielverlauf dargestellt.
 
 ---
 
 ## Features
 
-- **Spiel‑Setup**
-  - Frei wählbarer Spielname.
-  - Beliebig viele Spieler mit Namen.
-  - Konfigurierbare Anzahl Runden.
+### Spiel-Setup
+- Frei wählbarer Spielname
+- Beliebig viele Spieler mit individuellen Namen
+- Konfigurierbare Anzahl an Spielrunden
 
-- **Tilt‑basierte Steuerung**
-  - Erkennung der Neigung über den Beschleunigungssensor (`expo-sensors`).
-  - Kippen nach vorne: **Begriff korrekt**.
-  - Kippen nach hinten: **Begriff übersprungen**.
-  - Konfigurierbare Achse, Schwellwerte und Cooldown über ein `TiltConfig`.
+### Tilt-basierte Steuerung
+- Erkennung der Gerätebewegung über den Beschleunigungssensor (`expo-sensors`)
+- Kippen nach vorne: Begriff korrekt erraten
+- Kippen nach hinten: Begriff übersprungen
+- Konfigurierbare Achse, Schwellwerte und Cooldown über ein `TiltConfig`
 
-- **Wort-Generierung**
-  - Abruf zufälliger deutscher Begriffe über eine externe API (`random-words-api.kushcreates.com`) mit UTF‑8‑Handling.
-  - Normalisierung und Trimmen der Wörter vor Anzeige.
+### Wort-Generierung
+- Abruf zufälliger deutscher Begriffe über eine externe Web-API
+- Normalisierung und Bereinigung der Begriffe vor Anzeige
 
-- **Rundenlogik & Timer**
-  - Pro Runde 60 Sekunden Spielzeit (konfigurierbare Konstante).
-  - Automatischer Timer mit visueller `ProgressBar`.
-  - Am Ende der Runde:
-    - Speicherung des Turns mit korrekten/übersprungenen Begriffen.
-    - Automatisches Fortschalten zum nächsten Spieler / zur nächsten Runde.
-    - Wechsel zur Anleitung oder zum Leaderboard, sobald alle Runden beendet sind.
+### Rundenlogik & Timer
+- 60 Sekunden Spielzeit pro Runde (konfigurierbar)
+- Automatischer Countdown mit visueller Anzeige
+- Nach Ablauf der Zeit:
+    - Speicherung der Spielergebnisse
+    - Automatisches Fortschalten zum nächsten Spieler bzw. zur nächsten Runde
+    - Anzeige des Leaderboards nach Abschluss aller Runden
 
-- **Leaderboard & Statistiken**
-  - Berechnung der Platzierungen pro Spieler anhand:
-    - **korrekt** (absteigend),
-    - **übersprungen** (aufsteigend),
-    - Spielernamen (alphabetisch) als Tie‑Breaker.
-  - Anzeige von:
-    - Gewinnerkarte (`WinnerCard`),
-    - sortierter Rangliste (`LeaderboardCard`),
-    - kompakten Spielstatistiken (Rundenanzahl, Spieleranzahl).
+### Leaderboard & Statistiken
+- Berechnung der Platzierungen pro Spieler anhand:
+    - Anzahl korrekt erratener Begriffe (absteigend)
+    - Anzahl übersprungener Begriffe (aufsteigend)
+    - Spielernamen als Tie-Breaker
+- Anzeige von:
+    - Gewinner
+    - Rangliste aller Spieler
+    - Spielstatistiken (z. B. Anzahl Spieler und Runden)
 
-- **Spielverlauf (History)**
-  - Liste aller gespeicherten Spiele mit Datum.
-  - Detailansicht eines Spiels führt direkt ins zugehörige Leaderboard.
-  - Löschen einzelner Spiele oder kompletter Historie (mit Sicherheitsabfrage).
+### Spielverlauf (History)
+- Übersicht aller gespeicherten Spiele mit Datum
+- Detailansicht eines Spiels mit zugehörigem Leaderboard
+- Löschen einzelner Spiele oder der gesamten Historie
 
-- **Persistenz**
-  - Lokale Speicherung der Spiele und Turns in `AsyncStorage` (Key‑Prefix `game:`).
-  - Laden, Aktualisieren, Löschen und Mass‑Löschen über `lib/game/games.ts`.
+### Persistenz
+- Lokale Speicherung der Spiele und Runden in `AsyncStorage`
+- Laden, Aktualisieren und Löschen über eine zentrale Persistenzschicht
 
-- **Audio‑Feedback**
-  - Alarm‑Sound beim Rundenende.
-  - Sounds für „richtig“ und „übersprungen“.
-  - Implementiert mit `expo-audio` und kurzem Reset (`seekTo(0)`).
+### Audio-Feedback
+- Soundeffekte für korrekt erratene und übersprungene Begriffe
+- Akustisches Signal am Ende einer Runde
 
-- **UI/UX**
-  - Modernes, reduziertes Design mit Tailwind/Nativwind‑Utility‑Klassen.
-  - Farbpalette über CSS‑Variablen (`global.css`).
-  - Komponentenbasierte UI (Buttons, Input‑Felder, Karten, Badges).
-  - Separate Screens für Setup, Anleitung, Spiel, Leaderboard und History.
-  - Orientierungsschutz: Hinweis, wenn das Gerät nicht im Querformat ist.
+### Benutzeroberfläche
+- Reduziertes UI-Design mit Tailwind / NativeWind
+- Komponentenbasierter Aufbau (Buttons, Karten, Eingabefelder)
+- Separate Screens für Setup, Anleitung, Gameplay, Leaderboard und History
+- Hinweis bei falscher Geräteorientierung während der Spielrunde
 
 ---
 
 ## Tech-Stack
 
-- **Framework**: Expo / React Native (`expo-router`)
-- **Sprache**: TypeScript
-- **Styling**: `tailwindcss` + `nativewind`, zentrale Farben in `src/styles/global.css`
-- **Sensoren**: `expo-sensors` (Accelerometer)
-- **Audio**: `expo-audio`
-- **Persistenz**: `@react-native-async-storage/async-storage`
-- **Navigation**: `expo-router` mit Dateibasierter Routenstruktur
-- **Linter/Formatting**: ESLint, Prettier, TypeScript
-
----
-
-## Projektstruktur (Auszug)
-
-- `src/app/_layout.tsx` – Root‑Layout, globale Screen‑Optionen, globales CSS.
-- `src/app/index.tsx` – Startseite mit Logo, Call‑to‑Action und Einstieg ins Setup oder die History.
-- `src/app/game/setup/index.tsx` – Spiel‑Setup (Spielname, Spieler, Runden).
-- `src/app/game/instruction/[id].tsx` – Anleitungsscreen mit Spieler‑Info und Spielanweisungen.
-- `src/app/game/play/[id].tsx` – Hauptspielscreen mit Timer, aktuellem Wort, Tilt‑Steuerung, Score.
-- `src/app/leaderboard/[id].tsx` – Resultat/Leaderboard eines Spiels.
-- `src/app/history/index.tsx` – Spielverlauf mit Liste vergangener Spiele.
-
-- `src/lib/game/games.ts` – CRUD‑Operationen für Spiele in `AsyncStorage`.
-- `src/lib/game/leaderboard.ts` – Berechnung der Rangliste.
-- `src/lib/game/gameResult.ts` – Aufbereitung von Spielresultaten für die History.
-- `src/lib/game/randomWord.ts` – Abruf zufälliger deutscher Wörter von der API.
-- `src/lib/sensors/tiltDetection.ts` – Kernlogik zur Tilt‑Erkennung mit Schwellwerten, Baseline, Cooldown.
-- `src/lib/hooks/useTiltGesture.ts` – React‑Hook, der den Accelerometer abonniert und `detectTilt` kapselt.
-
-- `src/interface/entities/Game.ts`, `Turn.ts`, `Player.ts`, `Round.ts` – Domänenmodelle.
-- `src/types/tilt/*` und `src/interface/tilt/TiltConfig.ts` – Typsystem rund um Tilt‑Erkennung.
-- `src/components/base/*` – generische UI‑Bausteine (Buttons, Inputs).
-- `src/components/ui/*` – fachliche UI‑Komponenten für Game, Leaderboard, History, Spieler‑Liste etc.
-
----
-
-## Installation & Entwicklung
-
-### Voraussetzungen
-
-- Node.js (aktuelle LTS‑Version)
-- `npm`, `pnpm` oder `yarn`
-- Expo CLI (`npm install -g expo-cli`) – optional, aber hilfreich
-- Ein Emulator (Android/iOS) oder ein physisches Gerät mit Expo Go
-
-### Projekt einrichten
-
-```bash
-# Abhängigkeiten installieren
-npm install
-# oder
-yarn
-# oder
-pnpm install
-```
-
-### App starten
-
-```bash
-# Metro-Bundler/Dev-Server starten
-npm run start
-# oder
-npx expo start
-```
-
-Dann:
-
-- Den QR‑Code im Terminal/Browser mit der Expo‑Go‑App (iOS/Android) scannen, **oder**
-- `a` für Android‑Emulator bzw. `i` für iOS‑Simulator in der Expo‑Konsole drücken.
-
----
-
-## Entwicklungsskripte
-
-- **Code formatieren**
-
-  ```bash
-  npm run format
-  ```
-
-- **Linting**
-
-  ```bash
-  npm run lint
-  ```
+- **Framework:** React Native mit Expo (`expo-router`)
+- **Programmiersprache:** TypeScript
+- **Styling:** Tailwind CSS mit NativeWind
+- **Sensoren:** `expo-sensors` (Accelerometer)
+- **Audio:** `expo-audio`
+- **Persistenz:** `@react-native-async-storage/async-storage`
+- **Navigation:** `expo-router`
+- **Codequalität:** ESLint, Prettier
 
 ---
 
@@ -165,59 +95,60 @@ Dann:
 ### Domänenmodell
 
 - **Game**
-  - `id`, `name`, `createdAtIso`, `status`, `rounds`
-  - Liste von `players`
-  - `currentRoundIndex`, `currentPlayerIndex` zur Steuerung des Spielfortschritts.
+    - `id`, `name`, `createdAtIso`, `status`, `rounds`
+    - Liste von `players`
+    - `currentRoundIndex`, `currentPlayerIndex`
 
 - **Turn**
-  - Referenzen auf `gameId`, `roundId`, `playerId`
-  - `startedAtIso`, `endedAtIso`
-  - Zähler für `correct` und `skipped`.
+    - Referenzen auf `gameId`, `roundId`, `playerId`
+    - `startedAtIso`, `endedAtIso`
+    - Anzahl korrekt und übersprungen
 
-Die Kombination aus `Game` und allen `Turn`s bildet den vollständigen Zustand eines Spiels.
+Die Kombination aus einem Spiel (`Game`) und den zugehörigen Spielrunden (`Turn`) bildet den vollständigen Zustand einer Partie.
 
-### Persistenz-Schicht
+---
 
-Implementiert in `src/lib/game/games.ts`:
+### Persistenz
 
-- `createGame({ game, turns })` – legt ein neues Spiel mit leerer Turn‑Liste an.
-- `loadGameById({ gameId })` – lädt ein konkretes Spiel mit allen zugehörigen Turns.
-- `updateGame({ game, turn })` – aktualisiert ein Spiel und hängt optional einen neuen Turn an.
-- `loadGames()` – lädt alle gespeicherten Spiele (für die History).
-- `deleteGame({ gameId })`, `deleteAllGames()` – entfernen einzelne oder alle Spiele.
+Die Persistenzschicht ist in `src/lib/game/games.ts` implementiert und stellt folgende Funktionen bereit:
+
+- Erstellen eines neuen Spiels
+- Laden eines Spiels anhand der ID
+- Aktualisieren eines Spiels inklusive Rundenresultaten
+- Laden aller gespeicherten Spiele (History)
+- Löschen einzelner oder aller Spiele
+
+---
 
 ### Tilt-Erkennung
 
-- **Low‑Level**: `detectTilt` in `tiltDetection.ts`
-  - Nutzt einen Baseline‑Wert für die gewählte Achse (`x`, `y`, `z`).
-  - Berechnet Delta, vergleicht mit `threshold` und `resetThreshold`.
-  - `cooldownMs` verhindert schnelle Doppel‑Trigger.
-  - Gibt `TiltDirection` (`'forward'`, `'backward'`) oder `null` zurück.
+Die Gerätebewegung wird über den Beschleunigungssensor (`expo-sensors`) erfasst.
 
-- **High‑Level**: `useTiltGesture` Hook
-  - Abonniert den Accelerometer (`expo-sensors`).
-  - Übersetzt Rohdaten in `TiltDirection` und ruft den Callback des Screens auf.
-  - Ermöglicht Konfiguration (invertierte Achse, Schwellwerte etc.) und Deaktivierung.
+Die Low-Level-Funktion `detectTilt`:
+- bestimmt eine Baseline für die gewählte Achse
+- berechnet die Abweichung zum aktuellen Messwert
+- vergleicht diese mit definierten Schwellwerten
+- verhindert Mehrfachauslösungen mittels Cooldown
 
-Im Spielscreen (`/game/play/[id].tsx`) wird daraus die Logik:
+Der React-Hook `useTiltGesture`:
+- abonniert Accelerometer-Daten
+- interpretiert diese als Bewegungsrichtung
+- löst entsprechende Spielaktionen aus
 
-- `forward` → `onCorrectPress()` → Score hoch, neues Wort.
-- `backward` → `onSkipPress()` → Skip‑Zähler hoch, neues Wort.
-
----
-
-## Bekannte Einschränkungen / Hinweise
-
-- **Offline-Fähigkeit**: Spielstände sind komplett offline, aber neue Wörter benötigen eine funktionierende Internetverbindung (API‑Call). Fällt die API aus, kann `currentWord` `null` sein.
-- **Geräteorientierung**:
-  - Setup, History, Leaderboard: primär Hochformat.
-  - Spiel/Anleitung: sinnvoll nur im Querformat; `OrientationGuard` weist darauf hin.
-- **Plattformen**: Projekt ist für iOS und Android mit Expo vorgesehen; Web‑Support ist nicht explizit optimiert.
+Im Gameplay gilt:
+- `forward` → Begriff korrekt
+- `backward` → Begriff übersprungen
 
 ---
 
-## Autoren / Credits
+## Hinweise
 
-- Umsetzung als Schul-/Projektarbeit: **TiltGuess Josia und Marko**.
-- Technologie‑Stack und API‑Integration basieren auf Open‑Source‑Bibliotheken (Expo, React Native, Tailwind, Nativewind etc.).
+- Spielstände werden vollständig lokal gespeichert.
+- Für neue Begriffe ist eine aktive Internetverbindung erforderlich (API-Abruf).
+- Die Spielrunde ist primär für die Nutzung im Querformat ausgelegt.
 
+---
+
+## Autoren
+
+Projektarbeit von **Josia & Marko** im Rahmen des Moduls 335.
