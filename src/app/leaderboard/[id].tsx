@@ -1,14 +1,17 @@
 import { router, Stack, useLocalSearchParams } from 'expo-router'
 import { useEffect, useMemo, useState } from 'react'
 import { ScrollView, Text, View } from 'react-native'
-import { Home, RotateCcw, Trophy } from 'lucide-react-native'
+import { Home, RotateCcw } from 'lucide-react-native'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 import AppButton from '@/components/base/AppButton'
 import { computeLeaderboard, LeaderboardRow } from '@/lib/game/leaderboard'
 import type { Game } from '@/interface/entities/Game'
-import getRankBadge from '@/components/ui/rank/RankBadge'
 import { loadGameById } from '@/lib/game/games'
-import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import SplitStatCard from '@/components/ui/leaderboard/SplitStatCard'
+import LeaderboardCard from '@/components/ui/leaderboard/LeaderboardCard'
+import WinnerCard from '@/components/ui/leaderboard/WinnerCard'
+import ScreenHeader from '@/components/ui/leaderboard/ScreenHeader'
 
 export default function ResultScreen() {
   const params = useLocalSearchParams()
@@ -21,7 +24,6 @@ export default function ResultScreen() {
       : disableBackParam
     return rawValue === 'true'
   }, [disableBackParam])
-  const insets = useSafeAreaInsets()
 
   const gameId = Array.isArray(idParam) ? idParam[0] : idParam
 
@@ -50,13 +52,8 @@ export default function ResultScreen() {
 
   const winner = leaderboard[0]
 
-  const startNewGame = () => {
-    router.push('/game/setup')
-  }
-
-  const goHome = () => {
-    router.push('/')
-  }
+  const startNewGame = () => router.push('/game/setup')
+  const goHome = () => router.push('/')
 
   return (
     <View className="flex-1 bg-bg">
@@ -67,13 +64,8 @@ export default function ResultScreen() {
           gestureEnabled: !disableBack,
         }}
       />
-      {disableBack ? (
-        <View style={{ paddingTop: insets.top }} className="bg-bg">
-          <View className="h-14 flex-row items-center justify-center px-2">
-            <Text className="text-lg font-black text-text">Resultat</Text>
-          </View>
-        </View>
-      ) : null}
+
+      {disableBack ? <ScreenHeader title="Resultat" /> : null}
 
       {!game ? (
         <View className="flex-1" />
@@ -87,87 +79,16 @@ export default function ResultScreen() {
           }}
         >
           <View className="w-full max-w-md self-center">
-            <View className="rounded-3xl bg-surface border border-black/10 p-7 mb-5">
-              <View className="items-center">
-                <View className="h-20 w-20 rounded-3xl bg-bg border border-black/10 items-center justify-center mb-4">
-                  <Trophy size={36} color="#000000" />
-                </View>
+            <WinnerCard winner={winner} />
 
-                <Text className="text-3xl font-black text-text text-center mb-1">
-                  Gewinner
-                </Text>
+            <LeaderboardCard rows={leaderboard} />
 
-                <Text className="text-2xl font-black text-text text-center mb-5">
-                  {winner?.player.name ?? '—'}
-                </Text>
-
-                <View className="rounded-3xl bg-bg border border-black/10 px-8 py-5 items-center">
-                  <Text className="text-5xl font-black text-text">
-                    {winner?.correct ?? 0}
-                  </Text>
-                  <Text className="text-black/70">punkte</Text>
-                </View>
-
-                {winner ? (
-                  <Text className="text-black/70 mt-4">
-                    {winner.skipped} übersprungen
-                  </Text>
-                ) : null}
-              </View>
-            </View>
-
-            <View className="rounded-3xl bg-surface border border-black/10 p-6 mb-5">
-              <Text className="text-2xl font-black text-text mb-5">
-                Rangliste
-              </Text>
-
-              <View className="gap-3">
-                {leaderboard.map((row) => (
-                  <View
-                    key={row.player.id}
-                    className="rounded-2xl bg-bg border border-black/10 p-5 flex-row items-center"
-                  >
-                    {getRankBadge({ rank: row.rank })}
-
-                    <View className="flex-1 ml-4">
-                      <Text className="text-lg font-black text-text">
-                        {row.player.name}
-                      </Text>
-                      <Text className="text-black/70">
-                        {row.skipped} übersprungen
-                      </Text>
-                    </View>
-
-                    <View className="items-end">
-                      <Text className="text-3xl font-black text-text">
-                        {row.correct}
-                      </Text>
-                      <Text className="text-black/70">punkte</Text>
-                    </View>
-                  </View>
-                ))}
-              </View>
-            </View>
-
-            <View className="rounded-3xl bg-surface border border-black/10 p-6 mb-5">
-              <View className="flex-row">
-                <View className="flex-1 items-center">
-                  <Text className="text-3xl font-black text-text">
-                    {game.rounds}
-                  </Text>
-                  <Text className="text-black/70">Runde(n)</Text>
-                </View>
-
-                <View className="w-px bg-black/10" />
-
-                <View className="flex-1 items-center">
-                  <Text className="text-3xl font-black text-text">
-                    {game.players.length}
-                  </Text>
-                  <Text className="text-black/70">Spieler</Text>
-                </View>
-              </View>
-            </View>
+            <SplitStatCard
+              leftValue={game.rounds}
+              leftLabel="Runde(n)"
+              rightValue={game.players.length}
+              rightLabel="Spieler"
+            />
 
             <View className="gap-3">
               <AppButton
