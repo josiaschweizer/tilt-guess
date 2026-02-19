@@ -6,7 +6,7 @@ import { Game } from '@/interface/entities/Game'
 import { Turn } from '@/interface/entities/Turn'
 import { loadGameById, updateGame } from '@/lib/game/games'
 import { fetchRandomGermanWord } from '@/lib/game/randomWord'
-import { Audio } from 'expo-av'
+import { useAudioPlayer } from 'expo-audio'
 import { useTiltGesture } from '@/lib/hooks/useTiltGesture'
 import { TiltDirection } from '@/types/tilt/TiltDirection'
 
@@ -23,33 +23,20 @@ export default function GamePlay() {
   const [turn, setTurn] = useState<Turn | null>(null)
   const [timerEnded, setTimerEnded] = useState(false)
 
-  const playSound = useCallback(
-    async (soundFile: number): Promise<Audio.Sound | null> => {
-      let sound: Audio.Sound | null = null
-      try {
-        const { sound: loadedSound } = await Audio.Sound.createAsync(
-          soundFile,
-          {
-            shouldPlay: true,
-          },
-        )
-        sound = loadedSound
-
-        sound.setOnPlaybackStatusUpdate((status) => {
-          if (status.isLoaded && status.didJustFinish) {
-            sound?.unloadAsync()
-          }
-        })
-
-        return sound
-      } catch (error) {
-        console.error('Error playing sound:', error)
-        await sound?.unloadAsync()
-        return null
-      }
-    },
-    [],
+  const alarmPlayer = useAudioPlayer(
+    require('@/../assets/sounds/alarm-sound.mp3'),
   )
+  const correctPlayer = useAudioPlayer(
+    require('@/../assets/sounds/correct-sound.mp3'),
+  )
+  const skippedPlayer = useAudioPlayer(
+    require('@/../assets/sounds/skipped-sound.mp3'),
+  )
+
+  const playSound = useCallback((player: ReturnType<typeof useAudioPlayer>) => {
+    player.seekTo(0)
+    player.play()
+  }, [])
 
   const feedbackAnim = useRef(new Animated.Value(0)).current
   const [feedbackType, setFeedbackType] = useState<'correct' | 'skip' | null>(
@@ -76,9 +63,7 @@ export default function GamePlay() {
 
   const onTimerEnd = useCallback(
     async (currentTurn: Turn, currentGame: Game) => {
-      const alarmSound = await playSound(
-        require('@/../assets/sounds/alarm-sound.mp3'),
-      )
+      playSound(alarmPlayer)
 
       const finalTurn: Turn = {
         ...currentTurn,
@@ -108,11 +93,8 @@ export default function GamePlay() {
         [
           {
             text: 'OK',
-            onPress: async () => {
-              if (alarmSound) {
-                await alarmSound.stopAsync()
-                await alarmSound.unloadAsync()
-              }
+            onPress: () => {
+              alarmPlayer.pause()
               if (isGameFinished) {
                 router.replace({
                   pathname: '/leaderboard/[id]',
@@ -129,7 +111,7 @@ export default function GamePlay() {
         ],
       )
     },
-    [playSound],
+    [playSound, alarmPlayer],
   )
 
   useEffect(() => {
@@ -198,7 +180,7 @@ export default function GamePlay() {
   }, [timerEnded, turn, game, onTimerEnd])
 
   const onCorrectPress = useCallback(() => {
-    void playSound(require('@/../assets/sounds/correct-sound.mp3'))
+    playSound(correctPlayer)
 
     if (!turn || timerEnded) {
       return
@@ -207,10 +189,10 @@ export default function GamePlay() {
     setTurn((prev) => (prev ? { ...prev, correct: prev.correct + 1 } : prev))
     showFeedback('correct')
     void loadNewWord()
-  }, [turn, timerEnded, loadNewWord, showFeedback])
+  }, [turn, timerEnded, loadNewWord, showFeedback, playSound, correctPlayer])
 
   const onSkipPress = useCallback(() => {
-    void playSound(require('@/../assets/sounds/skipped-sound.mp3'))
+    playSound(skippedPlayer)
 
     if (!turn || timerEnded) {
       return
@@ -219,7 +201,7 @@ export default function GamePlay() {
     setTurn((prev) => (prev ? { ...prev, skipped: prev.skipped + 1 } : prev))
     showFeedback('skip')
     void loadNewWord()
-  }, [turn, timerEnded, loadNewWord, showFeedback])
+  }, [turn, timerEnded, loadNewWord, showFeedback, playSound, skippedPlayer])
 
   const handleTiltDetected = useCallback(
     (direction: TiltDirection) => {
