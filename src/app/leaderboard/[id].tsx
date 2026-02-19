@@ -96,7 +96,7 @@ export default function ResultScreen() {
                 fullWidth
               />
               <AppButton
-                text="Zur startseite"
+                text="Zur Startseite"
                 onPress={goHome}
                 variant="secondary"
                 icon={<Home size={18} color="#000000" />}
