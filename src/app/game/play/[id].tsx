@@ -1,4 +1,4 @@
-import { Alert, Text, View, Animated } from 'react-native'
+import { Alert, Text, View, Animated, ActivityIndicator } from 'react-native'
 import { useEffect, useState, useCallback, useRef } from 'react'
 import { Stack, useLocalSearchParams, router } from 'expo-router'
 import { randomUUID } from 'expo-crypto'
@@ -24,6 +24,8 @@ export default function GamePlay() {
   const [isLoading, setIsLoading] = useState(true)
   const [turn, setTurn] = useState<Turn | null>(null)
   const [timerEnded, setTimerEnded] = useState(false)
+  const [isLoadingWord, setIsLoadingWord] = useState(false)
+  const isProcessingAction = useRef(false)
 
   const alarmPlayer = useAudioPlayer(
     require('@/../assets/sounds/alarm-sound.mp3'),
@@ -46,8 +48,16 @@ export default function GamePlay() {
   )
 
   const loadNewWord = useCallback(async () => {
-    const word = await fetchRandomGermanWord()
+    setIsLoadingWord(true)
+    let word = await fetchRandomGermanWord()
+
+    if (!word) {
+      await new Promise((resolve) => setTimeout(resolve, 1000))
+      word = await fetchRandomGermanWord()
+    }
+
     setCurrentWord(word)
+    setIsLoadingWord(false)
   }, [])
 
   const showFeedback = useCallback(
@@ -132,7 +142,6 @@ export default function GamePlay() {
           const newTurn: Turn = {
             id: randomUUID(),
             gameId: data.game.id,
-            roundId: `round-${data.game.currentRoundIndex}`,
             playerId: data.game.players[data.game.currentPlayerIndex]?.id || '',
             startedAtIso: new Date().toISOString(),
             correct: 0,
@@ -182,27 +191,31 @@ export default function GamePlay() {
   }, [timerEnded, turn, game, onTimerEnd])
 
   const onCorrectPress = useCallback(() => {
-    playSound(correctPlayer)
-
-    if (!turn || timerEnded) {
+    if (!turn || timerEnded || isProcessingAction.current) {
       return
     }
 
+    isProcessingAction.current = true
+    playSound(correctPlayer)
     setTurn((prev) => (prev ? { ...prev, correct: prev.correct + 1 } : prev))
     showFeedback('correct')
-    void loadNewWord()
+    void loadNewWord().then(() => {
+      isProcessingAction.current = false
+    })
   }, [turn, timerEnded, loadNewWord, showFeedback, playSound, correctPlayer])
 
   const onSkipPress = useCallback(() => {
-    playSound(skippedPlayer)
-
-    if (!turn || timerEnded) {
+    if (!turn || timerEnded || isProcessingAction.current) {
       return
     }
 
+    isProcessingAction.current = true
+    playSound(skippedPlayer)
     setTurn((prev) => (prev ? { ...prev, skipped: prev.skipped + 1 } : prev))
     showFeedback('skip')
-    void loadNewWord()
+    void loadNewWord().then(() => {
+      isProcessingAction.current = false
+    })
   }, [turn, timerEnded, loadNewWord, showFeedback, playSound, skippedPlayer])
 
   const handleTiltDetected = useCallback(
@@ -256,7 +269,18 @@ export default function GamePlay() {
       )}
       <ProgressBar current={timeRemaining} total={TURN_DURATION_IN_SECONDS} />
       <View className="flex-1 justify-center items-center">
-        {currentWord ? (
+        {isLoading ? (
+          <View className="items-center">
+            <ActivityIndicator size="large" color="#3b82f6" />
+            <Text className="text-xl text-gray-400 mt-4">
+              Spiel wird geladen...
+            </Text>
+          </View>
+        ) : isLoadingWord ? (
+          <View className="items-center">
+            <ActivityIndicator size="large" color="#3b82f6" />
+          </View>
+        ) : currentWord ? (
           <Text
             className="text-5xl font-bold text-center px-4 max-w-full"
             style={{ flexShrink: 1 }}
