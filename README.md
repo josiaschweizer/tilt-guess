@@ -1,154 +1,154 @@
 ## TiltGuess
 
-TiltGuess ist ein mobiles Party-Ratespiel, das mit React Native und Expo entwickelt wurde.  
-Die Spieler halten das Smartphone an die Stirn, lassen sich Begriffe von den Mitspielern erklären und markieren diese durch Kippen des Geräts als „richtig“ oder „übersprungen“. Punkte werden automatisch gezählt, Spielstände lokal gespeichert und am Ende in einem Leaderboard ausgewertet.
+TiltGuess is a mobile party guessing game developed using React Native and Expo.  
+Players hold the smartphone to their forehead while teammates explain terms without saying the actual word. By tilting the device forward or backward, the active player can mark a term as "guessed correctly" or "skipped". Points are counted automatically, game states are stored locally, and evaluated in a leaderboard at the end of each game.
 
 ---
 
-### Abstract (Kurzbeschreibung)
+### Abstract (Short Description)
 
-TiltGuess dient als schnelle und einfache digitale Alternative zu klassischen Party-Ratespielen.  
-Der Fokus der Anwendung liegt auf:
+TiltGuess serves as a fast and simple digital alternative to traditional party guessing games.  
+The main focus of the application lies on:
 
-- **Intuitiver Steuerung**  
-  Begriffe werden ausschließlich über die Neigung des Geräts bewertet.
+- **Intuitive Controls**  
+  Terms are evaluated exclusively by tilting the device.
 
-- **Sofortiger Spielbarkeit**  
-  Kurzes Setup ohne Registrierung oder Backend-Infrastruktur.
+- **Instant Playability**  
+  Quick setup without registration or backend infrastructure.
 
-- **Übersichtlicher Auswertung**  
-  Pro Spiel werden Punkte, Spieler und Runden in einem Leaderboard sowie im Spielverlauf dargestellt.
+- **Clear Evaluation**  
+  Points, players, and rounds are displayed in a leaderboard and game history.
 
 ---
 
 ## Features
 
-### Spiel-Setup
-- Frei wählbarer Spielname
-- Beliebig viele Spieler mit individuellen Namen
-- Konfigurierbare Anzahl an Spielrunden
+### Game Setup
+- Freely selectable game name
+- Any number of players with individual names
+- Configurable number of rounds
 
-### Tilt-basierte Steuerung
-- Erkennung der Gerätebewegung über den Beschleunigungssensor (`expo-sensors`)
-- Kippen nach vorne: Begriff korrekt erraten
-- Kippen nach hinten: Begriff übersprungen
-- Konfigurierbare Achse, Schwellwerte und Cooldown über ein `TiltConfig`
+### Tilt-Based Controls
+- Device movement detection via accelerometer (`expo-sensors`)
+- Tilt forward: term guessed correctly
+- Tilt backward: term skipped
+- Configurable axis, thresholds, and cooldown using `TiltConfig`
 
-### Wort-Generierung
-- Abruf zufälliger deutscher Begriffe über eine externe Web-API
-- Normalisierung und Bereinigung der Begriffe vor Anzeige
+### Word Generation
+- Fetching random German terms via an external Web API
+- Normalization and cleanup of terms before display
 
-### Rundenlogik & Timer
-- 60 Sekunden Spielzeit pro Runde (konfigurierbar)
-- Automatischer Countdown mit visueller Anzeige
-- Nach Ablauf der Zeit:
-    - Speicherung der Spielergebnisse
-    - Automatisches Fortschalten zum nächsten Spieler bzw. zur nächsten Runde
-    - Anzeige des Leaderboards nach Abschluss aller Runden
+### Round Logic & Timer
+- 60 seconds playtime per round (configurable)
+- Automatic countdown with visual display
+- After time expires:
+  - Saving player results
+  - Automatic progression to next player or round
+  - Leaderboard display after all rounds are completed
 
-### Leaderboard & Statistiken
-- Berechnung der Platzierungen pro Spieler anhand:
-    - Anzahl korrekt erratener Begriffe (absteigend)
-    - Anzahl übersprungener Begriffe (aufsteigend)
-    - Spielernamen als Tie-Breaker
-- Anzeige von:
-    - Gewinner
-    - Rangliste aller Spieler
-    - Spielstatistiken (z. B. Anzahl Spieler und Runden)
+### Leaderboard & Statistics
+- Ranking based on:
+  - Number of correctly guessed terms (descending)
+  - Number of skipped terms (ascending)
+  - Player name as tie-breaker
+- Displays:
+  - Winner
+  - Ranking of all players
+  - Game statistics (e.g. number of players and rounds)
 
-### Spielverlauf (History)
-- Übersicht aller gespeicherten Spiele mit Datum
-- Detailansicht eines Spiels mit zugehörigem Leaderboard
-- Löschen einzelner Spiele oder der gesamten Historie
+### Game History
+- Overview of all saved games with date
+- Detailed view of each game including leaderboard
+- Deletion of single games or entire history
 
-### Persistenz
-- Lokale Speicherung der Spiele und Runden in `AsyncStorage`
-- Laden, Aktualisieren und Löschen über eine zentrale Persistenzschicht
+### Persistence
+- Local storage of games and rounds in `AsyncStorage`
+- Load, update, and delete via a centralized persistence layer
 
-### Audio-Feedback
-- Soundeffekte für korrekt erratene und übersprungene Begriffe
-- Akustisches Signal am Ende einer Runde
+### Audio Feedback
+- Sound effects for correct and skipped terms
+- Audio signal at the end of each round
 
-### Benutzeroberfläche
-- Reduziertes UI-Design mit Tailwind / NativeWind
-- Komponentenbasierter Aufbau (Buttons, Karten, Eingabefelder)
-- Separate Screens für Setup, Anleitung, Gameplay, Leaderboard und History
-- Hinweis bei falscher Geräteorientierung während der Spielrunde
+### User Interface
+- Minimal UI design with Tailwind / NativeWind
+- Component-based structure (buttons, cards, input fields)
+- Separate screens for setup, instructions, gameplay, leaderboard, and history
+- Orientation warning during gameplay if device is held incorrectly
 
 ---
 
-## Tech-Stack
+## Tech Stack
 
-- **Framework:** React Native mit Expo (`expo-router`)
-- **Programmiersprache:** TypeScript
-- **Styling:** Tailwind CSS mit NativeWind
-- **Sensoren:** `expo-sensors` (Accelerometer)
+- **Framework:** React Native with Expo (`expo-router`)
+- **Programming Language:** TypeScript
+- **Styling:** Tailwind CSS with NativeWind
+- **Sensors:** `expo-sensors` (Accelerometer)
 - **Audio:** `expo-audio`
-- **Persistenz:** `@react-native-async-storage/async-storage`
+- **Persistence:** `@react-native-async-storage/async-storage`
 - **Navigation:** `expo-router`
-- **Codequalität:** ESLint, Prettier
+- **Code Quality:** ESLint, Prettier
 
 ---
 
-## Architektur-Überblick
+## Architecture Overview
 
-### Domänenmodell
+### Domain Model
 
 - **Game**
-    - `id`, `name`, `createdAtIso`, `status`, `rounds`
-    - Liste von `players`
-    - `currentRoundIndex`, `currentPlayerIndex`
+  - `id`, `name`, `createdAtIso`, `status`, `rounds`
+  - List of `players`
+  - `currentRoundIndex`, `currentPlayerIndex`
 
 - **Turn**
-    - Referenzen auf `gameId`, `roundId`, `playerId`
-    - `startedAtIso`, `endedAtIso`
-    - Anzahl korrekt und übersprungen
+  - References to `gameId`, `roundId`, `playerId`
+  - `startedAtIso`, `endedAtIso`
+  - Number of correct and skipped terms
 
-Die Kombination aus einem Spiel (`Game`) und den zugehörigen Spielrunden (`Turn`) bildet den vollständigen Zustand einer Partie.
-
----
-
-### Persistenz
-
-Die Persistenzschicht ist in `src/lib/game/games.ts` implementiert und stellt folgende Funktionen bereit:
-
-- Erstellen eines neuen Spiels
-- Laden eines Spiels anhand der ID
-- Aktualisieren eines Spiels inklusive Rundenresultaten
-- Laden aller gespeicherten Spiele (History)
-- Löschen einzelner oder aller Spiele
+The combination of a game (`Game`) and its associated turns (`Turn`) represents the full state of a match.
 
 ---
 
-### Tilt-Erkennung
+### Persistence
 
-Die Gerätebewegung wird über den Beschleunigungssensor (`expo-sensors`) erfasst.
+The persistence layer is implemented in `src/lib/game/games.ts` and provides the following functionality:
 
-Die Low-Level-Funktion `detectTilt`:
-- bestimmt eine Baseline für die gewählte Achse
-- berechnet die Abweichung zum aktuellen Messwert
-- vergleicht diese mit definierten Schwellwerten
-- verhindert Mehrfachauslösungen mittels Cooldown
-
-Der React-Hook `useTiltGesture`:
-- abonniert Accelerometer-Daten
-- interpretiert diese als Bewegungsrichtung
-- löst entsprechende Spielaktionen aus
-
-Im Gameplay gilt:
-- `forward` → Begriff korrekt
-- `backward` → Begriff übersprungen
+- Creating a new game
+- Loading a game by ID
+- Updating a game including round results
+- Loading all saved games (history)
+- Deleting single or all games
 
 ---
 
-## Hinweise
+### Tilt Detection
 
-- Spielstände werden vollständig lokal gespeichert.
-- Für neue Begriffe ist eine aktive Internetverbindung erforderlich (API-Abruf).
-- Die Spielrunde ist primär für die Nutzung im Querformat ausgelegt.
+Device movement is captured using the accelerometer (`expo-sensors`).
+
+The low-level function `detectTilt`:
+- Determines a baseline for the selected axis
+- Calculates deviation from the current measurement
+- Compares it with defined thresholds
+- Prevents multiple triggers using a cooldown
+
+The React hook `useTiltGesture`:
+- Subscribes to accelerometer data
+- Interprets movement direction
+- Triggers corresponding game actions
+
+During gameplay:
+- `forward` → term guessed correctly
+- `backward` → term skipped
 
 ---
 
-## Autoren
+## Notes
 
-Projektarbeit von **Josia & Marko** im Rahmen des Moduls 335.
+- Game states are stored entirely locally.
+- An active internet connection is required to fetch new terms (API call).
+- Gameplay is primarily designed for landscape orientation.
+
+---
+
+## Authors
+
+Project work by **Josia & Marko** as part of Module 335.
